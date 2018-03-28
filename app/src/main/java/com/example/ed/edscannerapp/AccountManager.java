@@ -1,0 +1,158 @@
+package com.example.ed.edscannerapp;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.example.ed.edscannerapp.entities.VerificationResponse;
+import com.example.ed.edscannerapp.server.BL;
+
+import java.util.Random;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static com.example.ed.edscannerapp.Helper.sha256;
+
+public class AccountManager {
+
+    private class Storage {
+
+        private SharedPreferences sharedPref;
+        private Activity activity;
+
+        public Storage(Activity activity){
+            this.activity = activity;
+            this.sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        }
+
+        public String getString(int id){
+            return sharedPref.getString(activity.getString(id), null);
+        }
+
+        public void setString(int id, String value){
+            sharedPref.edit().putString(activity.getString(id), value).commit();
+        }
+    }
+
+    static private AccountManager instance;
+
+    private String login = null;
+    private String password = null;
+    private String salt = null;
+    private String sig = null;
+
+    private Storage storage;
+
+    private AccountManager(Activity activity){
+        storage = new Storage(activity);
+
+        String login = storage.getString(R.string.account_manager_login);
+
+        if(login != null){
+            this.login = login;
+            this.password = storage.getString(R.string.account_manager_password);
+            this.salt = storage.getString(R.string.account_manager_salt);
+            this.sig = storage.getString(R.string.account_manager_sig);
+        }
+    }
+
+    public static void initInstance(Activity activity) {
+        if (instance == null) {
+            instance = new AccountManager(activity);
+        }
+    }
+
+    public static AccountManager getInstance() {
+        return instance;
+    }
+
+    public boolean isLogined(){
+        return login != null;
+    }
+
+    public String getLogin(){
+        return login;
+    }
+
+    public String getSalt(){
+        return salt;
+    }
+
+    public String getSig(){
+        return sig;
+    }
+
+    interface LoginCallback {
+        void success();
+        void error();
+    }
+
+    public void login(final String login, final String password, final LoginCallback callback){
+
+        Random rand = new Random();
+
+        Integer _salt = rand.nextInt(98000) + 1000;
+
+        final String salt = _salt.toString();
+        final String sig = sha256(salt + login + password);
+
+        BL.verification(login, salt, sig).enqueue(new Callback<VerificationResponse>() {
+            @Override
+            public void onResponse(Call<VerificationResponse> call, Response<VerificationResponse> response) {
+                if (response.isSuccessful()) {
+                    VerificationResponse verification = response.body();
+
+                    if(verification.isSuccessful()){
+                        saveData(login, password, salt, sig);
+                        callback.success();
+                    }
+                    else {
+                        callback.error();
+                    }
+
+                } else {
+                    //TODO
+                }
+            }
+
+            @Override
+            public void onFailure(Call<VerificationResponse> call, Throwable t) {
+                //TODO
+            }
+        });
+    }
+
+    public void logout(){
+        saveData(null, null, null, null);
+    }
+
+    private void saveData(String login, String password, String salt, String sig){
+        this.setLogin(login);
+        this.setPassword(password);
+        this.setSalt(salt);
+        this.setSig(sig);
+    }
+
+    private void setLogin(String login){
+        this.login = login;
+        storage.setString(R.string.account_manager_login, login);
+    }
+
+    private void setSalt(String salt){
+        this.salt = salt;
+        storage.setString(R.string.account_manager_salt, salt);
+    }
+
+    private void setSig(String sig){
+        this.sig = sig;
+        storage.setString(R.string.account_manager_sig, sig);
+    }
+
+    private void setPassword(String password){
+        this.password = password;
+        storage.setString(R.string.account_manager_password, password);
+    }
+
+}

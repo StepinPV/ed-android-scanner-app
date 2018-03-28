@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#b5be20</color>
+    <color name="colorPrimaryDark">#BFBFBF</color>
+    <color name="colorAccent">#733814</color>
+
+    <color name="colorFirst">#b5be20</color>
+    <color name="colorSecond">#BFBFBF</color>
+    <color name="colorThird">#99a11b</color>
+
+    <color name="productListUnScanned">#fff</color>
+    <color name="productListScanned">#a7d962</color>
+    <color name="productListManualScanned">#ffdd62</color>
+
+    <color name="orderListDefault">#fff</color>
+    <color name="orderListUnstarted">#a7d962</color>
+    <color name="orderListPaused">#ffdd62</color>
+    <color name="orderListPartial">#ff8684</color>
+
+    <color name="order_status_bg_unstarted">#ebfdac</color>
+    <color name="order_status_bg_pause">#38ffdd00</color>
+    <color name="order_status_bg_active">#fff</color>
+    <color name="order_status_bg_default">#fff</color>
+
+    <color name="order_status_title_unstarted">@color/colorFirst</color>
+    <color name="order_status_title_pause">#e4b300</color>
+    <color name="order_status_title_active">#000</color>
+    <color name="order_status_title_default">#000</color>
+</resources>
