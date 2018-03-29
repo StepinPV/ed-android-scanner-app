@@ -79,7 +79,7 @@ public class ProductActivity extends AppCompatActivity {
         barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
             @Override
             public void success(String barcode) {
-                checkProduct(false, barcode);
+                checkProduct(false, barcode, false);
             }
         });
 
@@ -158,7 +158,7 @@ public class ProductActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int id) {
                 TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
                 String barcode = textView.getText().toString();
-                checkProduct(false, barcode);
+                checkProduct(false, barcode, true);
             }
         }).setNegativeButton("Отмена", null);
 
@@ -177,14 +177,14 @@ public class ProductActivity extends AppCompatActivity {
         builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                checkProduct(true, null);
+                checkProduct(true, null, false);
             }
         }).setNegativeButton("Отмена", null);
 
         builder.create().show();
     }
 
-    public void checkProduct(boolean manual, String barcode){
+    public void checkProduct(boolean manual, String barcode, boolean manualInputBarcode){
 
         Product currentProduct = ProductsHelper.getUnscannedByIndex(manager.getSavedProducts(), currentPagePosition);
 
@@ -197,9 +197,13 @@ public class ProductActivity extends AppCompatActivity {
                 successBarcode(currentProduct.getId(), false);
             }
             else {
-                Vibrator vibrator = (Vibrator)getSystemService(ProductActivity.VIBRATOR_SERVICE);
-                vibrator.vibrate(300);
-                currentProduct.increaseRejectCounter();
+                ((Vibrator)getSystemService(ProductActivity.VIBRATOR_SERVICE)).vibrate(300);
+
+                //TODO Надо в колбеке
+                if(manualInputBarcode){
+                    currentProduct.increaseRejectCounter();
+                }
+
                 updateButtons();
 
                 errorBarcode();

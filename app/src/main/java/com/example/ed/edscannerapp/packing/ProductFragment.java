@@ -23,7 +23,8 @@ public class ProductFragment extends Fragment {
     private static final String PRODUCT_UNIT = "product_unit";
     private static final String PRODUCT_MANUFACTURER = "product_manufacturer";
     private static final String PRODUCT_IMAGE = "product_image";
-    private static final String PRODUCT_QUANTITY = "product_quantity";
+    private static final String PRODUCT_PACKING_QUANTITY = "product_packing_quantity";
+    private static final String PRODUCT_NEEDED_QUANTITY = "product_needed_quantity";
 
     private ImageView overlayView;
     private GifView successView;
@@ -41,7 +42,8 @@ public class ProductFragment extends Fragment {
         args.putString(PRODUCT_UNIT, product.getUnit());
         args.putString(PRODUCT_MANUFACTURER, product.getManufacturer());
         args.putString(PRODUCT_IMAGE, product.getImage());
-        args.putInt(PRODUCT_QUANTITY, product.getNeededQuantity() - product.getPackingQuantity());
+        args.putInt(PRODUCT_PACKING_QUANTITY, product.getPackingQuantity());
+        args.putInt(PRODUCT_NEEDED_QUANTITY, product.getNeededQuantity());
 
         fragment.setArguments(args);
         return fragment;
@@ -65,16 +67,13 @@ public class ProductFragment extends Fragment {
                         args.getString(PRODUCT_UNIT))
         );
 
-        TextView quantityView = (TextView) rootView.findViewById(R.id.activity_product_quantity);
-        int quantity = args.getInt(PRODUCT_QUANTITY);
-        if(quantity > 1){
-            quantityView.setText(String.valueOf(args.getInt(PRODUCT_QUANTITY)));
-            quantityView.setVisibility(TextView.VISIBLE);
-        }
-        else {
-            quantityView.setText("");
-            quantityView.setVisibility(TextView.GONE);
-        }
+        ((TextView) rootView.findViewById(R.id.activity_product_quantity)).setText(
+                getString(R.string.product_packing_quantity,
+                        String.valueOf(args.getInt(PRODUCT_PACKING_QUANTITY)),
+                        String.valueOf(args.getInt(PRODUCT_NEEDED_QUANTITY))
+                )
+        );
+
 
         overlayView = (ImageView) rootView.findViewById(R.id.activity_product_overlay);
         successView = (GifView) rootView.findViewById(R.id.activity_product_success);

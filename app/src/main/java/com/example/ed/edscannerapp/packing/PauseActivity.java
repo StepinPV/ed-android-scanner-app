@@ -111,6 +111,10 @@ public class PauseActivity extends AppCompatActivity {
             ((TextView)convertView.findViewById(R.id.product_section)).setText(item.getSection());
             ((TextView)convertView.findViewById(R.id.product_name)).setText(item.getName());
 
+            ((TextView)convertView.findViewById(R.id.product_packingQuantity)).setText(
+                    String.valueOf(item.getNeededQuantity() - item.getPackingQuantity())
+            );
+
             return convertView;
         }
     }

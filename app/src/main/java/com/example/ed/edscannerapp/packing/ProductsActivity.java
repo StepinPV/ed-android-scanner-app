@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,20 +27,55 @@ import com.example.ed.edscannerapp.entities.Products;
 import java.util.List;
 import java.util.Timer;
 
-public class ProductsActivity extends AppCompatActivity {
+public class ProductsActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     Manager manager = Manager.getInstance();
-    ProductsListAdapter adapter;
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    ProductsListAdapter adapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_products);
 
-        this.initList();
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.productsRefresh);
+        final ListView listView = (ListView) findViewById(R.id.productListView);
+
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         TextView userNameView = (TextView) findViewById(R.id.products_user_name);
         userNameView.setText(AccountManager.getInstance().getLogin());
+
+        manager.getProducts(new Manager.GetProductsCallback(){
+
+            @Override
+            public void success(com.example.ed.edscannerapp.entities.Products products){
+                adapter = new ProductsListAdapter(ProductsActivity.this, products);
+                listView.setAdapter(adapter);
+            };
+
+            @Override
+            public void error(String message){
+            };
+
+        });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Product product = (Product) parent.getItemAtPosition(position);
+
+                int packingQuantity = product.getPackingQuantity();
+                if(packingQuantity > 0){
+                    ProductsActivity.this.cancelProduct(product);
+                }
+                else {
+                    ProductsActivity.this.exit(product.getId());
+                }
+            }
+
+        });
     }
 
     public void exit(View w){
@@ -51,43 +87,6 @@ public class ProductsActivity extends AppCompatActivity {
         intent.putExtra("product_id", orderId);
         setResult(Activity.RESULT_OK, intent);
         finish();
-    }
-
-    public void initList(){
-
-        manager.getProducts(new Manager.GetProductsCallback(){
-
-            @Override
-            public void success(com.example.ed.edscannerapp.entities.Products products){
-                ListView listView = (ListView) findViewById(R.id.productListView);
-                adapter = new ProductsListAdapter(ProductsActivity.this, products);
-                listView.setAdapter(adapter);
-
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Product product = (Product) parent.getItemAtPosition(position);
-
-                        int packingQuantity = product.getPackingQuantity();
-                        if(packingQuantity > 0){
-                            ProductsActivity.this.cancelProduct(product);
-                        }
-                        else {
-                            ProductsActivity.this.exit(product.getId());
-                        }
-                    }
-
-                });
-
-            };
-
-            @Override
-            public void error(String message){
-            };
-
-        });
-
     }
 
     private void cancelProduct(final Product product){
@@ -137,6 +136,27 @@ public class ProductsActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+    @Override
+    public void onRefresh() {
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        manager.getProducts(new Manager.GetProductsCallback(){
+
+            @Override
+            public void success(com.example.ed.edscannerapp.entities.Products products){
+                adapter.setProducts(products);
+                adapter.notifyDataSetChanged();
+                mSwipeRefreshLayout.setRefreshing(false);
+            };
+
+            @Override
+            public void error(String message){
+            };
+
+        });
+
+    }
+
     class ProductsListAdapter extends BaseAdapter implements ListAdapter {
 
         private Context context;
@@ -144,6 +164,10 @@ public class ProductsActivity extends AppCompatActivity {
 
         public ProductsListAdapter(Context context, Products products){
             this.context = context;
+            this.products = products;
+        }
+
+        public void setProducts(Products products){
             this.products = products;
         }
 
@@ -179,7 +203,12 @@ public class ProductsActivity extends AppCompatActivity {
             {
                 default:
                 case Product.STATUS_UNSCANNED:
-                    color = R.color.productListUnScanned;
+                    if(item.getPackingQuantity() > 0){
+                        color = R.color.productListPartialScanned;
+                    }
+                    else {
+                        color = R.color.productListUnScanned;
+                    }
                     break;
                 case Product.STATUS_SCANNED:
                     color = R.color.productListScanned;

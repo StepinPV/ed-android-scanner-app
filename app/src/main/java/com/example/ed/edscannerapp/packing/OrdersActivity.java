@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,61 +32,42 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class OrdersActivity extends AppCompatActivity {
+public class OrdersActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    ListView listView;
+    OrdersListAdapter adapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_orders);
 
-        this.initList();
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.ordersRefresh);
+
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         TextView userNameView = (TextView) findViewById(R.id.orders_user_name);
         userNameView.setText(AccountManager.getInstance().getLogin());
-    }
 
-    public void exit(View w){
-        this.exit("");
-    }
+        listView = (ListView) findViewById(R.id.orders_list);
 
-    private void exit(String orderId){
-        Intent intent = new Intent();
-        intent.putExtra("order_id", orderId);
-        setResult(Activity.RESULT_OK, intent);
-        finish();
-    }
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
-    public void initList(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Order order = (Order) parent.getItemAtPosition(position);
+                OrdersActivity.this.exit(order.getId());
+            }
+
+        });
+
         AccountManager am = AccountManager.getInstance();
         BL.getOrders(am.getLogin(), am.getSalt(), am.getSig()).enqueue(new Callback<OrdersResponse>() {
             @Override
             public void onResponse(Call<OrdersResponse> call, Response<OrdersResponse> response) {
                 if (response.isSuccessful()) {
-
-                    List<Order> orders = response.body().getOrders().getOrderList();
-                    boolean hasOrders = orders != null;
-                    final ListView listView = (ListView) findViewById(R.id.orders_list);
-
-                    if(hasOrders){
-                        final OrdersListAdapter adapter = new OrdersListAdapter(OrdersActivity.this, orders);
-
-                        listView.setAdapter(adapter);
-
-                        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                Order order = (Order) parent.getItemAtPosition(position);
-                                OrdersActivity.this.exit(order.getId());
-                            }
-
-                        });
-                    }
-
-                    listView.setVisibility(hasOrders ? ListView.VISIBLE : ListView.GONE);
-                    ((TextView) findViewById(R.id.orders_no_orders_message)).setVisibility(hasOrders ? Button.GONE : Button.VISIBLE);
-
-
+                    OrdersActivity.this.updateData(response.body().getOrders().getOrderList());
                 } else {
                     //TODO
                     Log.d("123", "response code " + response.code());
@@ -100,6 +82,62 @@ public class OrdersActivity extends AppCompatActivity {
         });
     }
 
+    public void exit(View w){
+        this.exit("");
+    }
+
+    private void exit(String orderId){
+        Intent intent = new Intent();
+        intent.putExtra("order_id", orderId);
+        setResult(Activity.RESULT_OK, intent);
+        finish();
+    }
+
+    public void updateData(List<Order> orders){
+        boolean hasOrders = orders != null;
+
+        if(hasOrders){
+            if(adapter == null){
+                OrdersListAdapter adapter = new OrdersListAdapter(OrdersActivity.this, orders);
+                listView.setAdapter(adapter);
+            }
+            else {
+                adapter.setOrders(orders);
+                adapter.notifyDataSetChanged();
+            }
+        }
+
+        listView.setVisibility(hasOrders ? ListView.VISIBLE : ListView.GONE);
+        ((TextView) findViewById(R.id.orders_no_orders_message)).setVisibility(hasOrders ? Button.GONE : Button.VISIBLE);
+    }
+
+    @Override
+    public void onRefresh() {
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        AccountManager am = AccountManager.getInstance();
+        BL.getOrders(am.getLogin(), am.getSalt(), am.getSig()).enqueue(new Callback<OrdersResponse>() {
+
+            @Override
+            public void onResponse(Call<OrdersResponse> call, Response<OrdersResponse> response) {
+                if (response.isSuccessful()) {
+                    OrdersActivity.this.updateData(response.body().getOrders().getOrderList());
+                    mSwipeRefreshLayout.setRefreshing(false);
+                } else {
+                    //TODO
+                    Log.d("123", "response code " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrdersResponse> call, Throwable t) {
+                //TODO
+                Log.d("123", "failure " + t);
+            }
+        });
+
+    }
+
     class OrdersListAdapter extends BaseAdapter implements ListAdapter {
 
         private Context context;
@@ -107,6 +145,10 @@ public class OrdersActivity extends AppCompatActivity {
 
         public OrdersListAdapter(Context context, List<Order> items){
             this.context = context;
+            this.items = items;
+        }
+
+        public void setOrders(List<Order> items){
             this.items = items;
         }
 

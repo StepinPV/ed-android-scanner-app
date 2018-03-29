@@ -9,21 +9,22 @@
     <color name="colorThird">#99a11b</color>
 
     <color name="productListUnScanned">#fff</color>
-    <color name="productListScanned">#a7d962</color>
-    <color name="productListManualScanned">#ffdd62</color>
+    <color name="productListScanned">#ceeaa6</color>
+    <color name="productListPartialScanned">#d5f7ff</color>
+    <color name="productListManualScanned">#fff3c8</color>
 
     <color name="orderListDefault">#fff</color>
-    <color name="orderListUnstarted">#a7d962</color>
-    <color name="orderListPaused">#ffdd62</color>
-    <color name="orderListPartial">#ff8684</color>
+    <color name="orderListUnstarted">#ceeaa6</color>
+    <color name="orderListPaused">#d5f7ff</color>
+    <color name="orderListPartial">#fdc8c7</color>
 
-    <color name="order_status_bg_unstarted">#ebfdac</color>
-    <color name="order_status_bg_pause">#38ffdd00</color>
+    <color name="order_status_bg_unstarted">#ceeaa6</color>
+    <color name="order_status_bg_pause">#d5f7ff</color>
     <color name="order_status_bg_active">#fff</color>
     <color name="order_status_bg_default">#fff</color>
 
-    <color name="order_status_title_unstarted">@color/colorFirst</color>
-    <color name="order_status_title_pause">#e4b300</color>
+    <color name="order_status_title_unstarted">#a7b100</color>
+    <color name="order_status_title_pause">#00819e</color>
     <color name="order_status_title_active">#000</color>
     <color name="order_status_title_default">#000</color>
 </resources>
