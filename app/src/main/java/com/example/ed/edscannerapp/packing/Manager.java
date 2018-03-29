@@ -179,15 +179,15 @@ public class Manager {
         void error(String message);
     }
 
-    public void cancelProduct(final String productId, final CancelProductCallback callback){
+    public void cancelProduct(final String productId, final int quantity, final CancelProductCallback callback){
 
         AccountManager am = AccountManager.getInstance();
-        BL.cancelProduct(am.getLogin(), am.getSalt(), am.getSig(), productId).enqueue(new Callback<BaseResponse>() {
+        BL.cancelProduct(am.getLogin(), am.getSalt(), am.getSig(), productId, String.valueOf(quantity)).enqueue(new Callback<BaseResponse>() {
             @Override
             public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                 if (response.isSuccessful()) {
                     if(response.body().isSuccessful()){
-                        products.getProductById(productId).cancel();
+                        products.getProductById(productId).cancel(quantity);
                         callback.success();
                     }
                     else {

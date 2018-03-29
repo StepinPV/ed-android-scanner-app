@@ -27,6 +27,15 @@ public class Product {
     @SerializedName("manufacturer")
     private String manufacturer;
 
+    @SerializedName("image")
+    private String image;
+
+    @SerializedName("quantity_needed")
+    private int neededQuantity;
+
+    @SerializedName("packing_quantity")
+    private int packingQuantity;
+
     private int rejectCount = 0;
 
     final public static String STATUS_UNSCANNED = "1";
@@ -53,7 +62,13 @@ public class Product {
     }
 
     public String getWeight(){
-        return weight;
+        return fmt(weight);
+    }
+
+    //Убираем лишние нули
+    private static String fmt(String val) {
+        float d = Float.parseFloat(val);
+        return d == (long) d ? String.format("%d", (long) d) : String.format("%s", d);
     }
 
     public String getUnit(){
@@ -68,15 +83,25 @@ public class Product {
         return status;
     }
 
+    public String getImage(){
+        return image;
+    }
+
     public boolean isScanned(){
         return status.equals(STATUS_SCANNED) || status.equals(STATUS_MANUAL_SCANNED);
     }
 
     public void confirm(boolean manualMode){
-        status = manualMode ? STATUS_MANUAL_SCANNED : STATUS_SCANNED;
+        //Если последний, меняем статус
+        packingQuantity++;
+
+        if(neededQuantity == packingQuantity){
+            status = manualMode ? STATUS_MANUAL_SCANNED : STATUS_SCANNED;
+        }
     }
 
-    public void cancel(){
+    public void cancel(int quantity){
+        packingQuantity -= quantity;
         status = STATUS_UNSCANNED;
     }
 
@@ -86,5 +111,13 @@ public class Product {
 
     public int getRejectCount(){
         return rejectCount;
+    }
+
+    public int getNeededQuantity(){
+        return neededQuantity;
+    }
+
+    public int getPackingQuantity(){
+        return packingQuantity;
     }
 }

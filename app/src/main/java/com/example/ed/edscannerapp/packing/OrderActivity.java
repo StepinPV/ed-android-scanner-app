@@ -206,8 +206,18 @@ public class OrderActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.order_client_name)).setText(order.getName());
             //количество заказов
             ((TextView) findViewById(R.id.order_client_orders_count)).setText(getString(R.string.order_client_orders_count, order.getOrderCount()));
+
             //Статус
-            ((TextView) findViewById(R.id.order_client_status)).setText(getString(R.string.order_client_status, order.isVip() ? "VIP" : "Обычный"));
+            TextView statusView = (TextView) findViewById(R.id.order_client_status);
+            if(order.isVip()){
+                statusView.setText("VIP");
+                statusView.setVisibility(TextView.VISIBLE);
+            }
+            else {
+                statusView.setText("");
+                statusView.setVisibility(TextView.GONE);
+            }
+
             //город
             ((TextView) findViewById(R.id.order_client_shipping_zone)).setText(order.getShippingZone());
             //id

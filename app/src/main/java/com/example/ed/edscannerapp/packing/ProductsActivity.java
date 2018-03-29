@@ -69,7 +69,8 @@ public class ProductsActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Product product = (Product) parent.getItemAtPosition(position);
 
-                        if(product.isScanned()){
+                        int packingQuantity = product.getPackingQuantity();
+                        if(packingQuantity > 0){
                             ProductsActivity.this.cancelProduct(product);
                         }
                         else {
@@ -90,14 +91,33 @@ public class ProductsActivity extends AppCompatActivity {
     }
 
     private void cancelProduct(final Product product){
-        AlertDialog.Builder builder = Helper.getDialogBuilder(this,
-                "Отменить упаковку товара?",
-                "", null);
 
-        builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+        final int packingQuantity = product.getPackingQuantity();
+        final boolean manyQuantity = packingQuantity > 1;
+
+        AlertDialog.Builder builder = Helper.getDialogBuilder(this,
+                manyQuantity ? "Введите количество товара" : "",
+                "Отминить упаковку товара?", manyQuantity ? R.layout.barcode : null);
+
+        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                manager.cancelProduct(product.getId(), new Manager.CancelProductCallback() {
+                int quantity = 1;
+
+                if(manyQuantity){
+                    TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
+                    int inputQuantity = Integer.parseInt(textView.getText().toString());
+
+                    if(inputQuantity > packingQuantity){
+                        inputQuantity = packingQuantity;
+                    }
+                    else if(packingQuantity < 1){
+                        inputQuantity = 1;
+                    }
+                    quantity = inputQuantity;
+                }
+
+                manager.cancelProduct(product.getId(), quantity, new Manager.CancelProductCallback() {
                     @Override
                     public void success() {
                         adapter.notifyDataSetChanged();
@@ -108,8 +128,9 @@ public class ProductsActivity extends AppCompatActivity {
                         Helper.showErrorMessage(ProductsActivity.this, message);
                     }
                 });
+
             }
-        });
+        }).setNegativeButton("Отмена", null);
 
         builder.setNegativeButton("Отмена", null);
 
@@ -148,6 +169,10 @@ public class ProductsActivity extends AppCompatActivity {
 
             ((TextView)convertView.findViewById(R.id.product_section)).setText(item.getSection());
             ((TextView)convertView.findViewById(R.id.product_name)).setText(item.getName());
+            ((TextView)convertView.findViewById(R.id.product_packingQuantity)).setText(
+                    getString(R.string.product_packing_quantity,
+                            String.valueOf(item.getPackingQuantity()), String.valueOf(item.getNeededQuantity()))
+            );
 
             int color;
             switch (item.getStatus())

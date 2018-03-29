@@ -63,5 +63,6 @@ public interface ServerAPI {
     @FormUrlEncoded
     @POST(path + "product_remove")
     Call<BaseResponse> cancelProduct(@Field("login") String login, @Field("salt") String salt,
-                                            @Field("sig") String sig, @Field("order_product_id") String productId);
+                                     @Field("sig") String sig, @Field("order_product_id") String productId,
+                                     @Field("quantity") String quantity);
 }

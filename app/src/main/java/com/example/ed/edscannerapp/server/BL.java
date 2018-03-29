@@ -53,8 +53,8 @@ public class BL {
         return manual ? EP.confirmProductManual(login, salt, sig, productId) : EP.confirmProductAuto(login, salt, sig, productId);
     }
 
-    static public Call<BaseResponse> cancelProduct(String login, String salt, String sig, String productId){
-        return EP.cancelProduct(login, salt, sig, productId);
+    static public Call<BaseResponse> cancelProduct(String login, String salt, String sig, String productId, String quantity){
+        return EP.cancelProduct(login, salt, sig, productId, quantity);
     }
 
 }

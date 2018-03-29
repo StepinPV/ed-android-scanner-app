@@ -22,6 +22,8 @@ public class ProductFragment extends Fragment {
     private static final String PRODUCT_WEIGHT = "product_weight";
     private static final String PRODUCT_UNIT = "product_unit";
     private static final String PRODUCT_MANUFACTURER = "product_manufacturer";
+    private static final String PRODUCT_IMAGE = "product_image";
+    private static final String PRODUCT_QUANTITY = "product_quantity";
 
     private ImageView overlayView;
     private GifView successView;
@@ -38,6 +40,8 @@ public class ProductFragment extends Fragment {
         args.putString(PRODUCT_WEIGHT, product.getWeight());
         args.putString(PRODUCT_UNIT, product.getUnit());
         args.putString(PRODUCT_MANUFACTURER, product.getManufacturer());
+        args.putString(PRODUCT_IMAGE, product.getImage());
+        args.putInt(PRODUCT_QUANTITY, product.getNeededQuantity() - product.getPackingQuantity());
 
         fragment.setArguments(args);
         return fragment;
@@ -61,12 +65,23 @@ public class ProductFragment extends Fragment {
                         args.getString(PRODUCT_UNIT))
         );
 
+        TextView quantityView = (TextView) rootView.findViewById(R.id.activity_product_quantity);
+        int quantity = args.getInt(PRODUCT_QUANTITY);
+        if(quantity > 1){
+            quantityView.setText(String.valueOf(args.getInt(PRODUCT_QUANTITY)));
+            quantityView.setVisibility(TextView.VISIBLE);
+        }
+        else {
+            quantityView.setText("");
+            quantityView.setVisibility(TextView.GONE);
+        }
+
         overlayView = (ImageView) rootView.findViewById(R.id.activity_product_overlay);
         successView = (GifView) rootView.findViewById(R.id.activity_product_success);
         errorView = (ImageView) rootView.findViewById(R.id.activity_product_error);
 
-        //ImageView imageView = (ImageView) rootView.findViewById(R.id.activity_product_image);
-        //new Helper.ImageLoader(imageView).execute("http://xn--80aapxcb0bk.com/static/files/t/15/11/19/35d72edbf4bea0abbc3a7ae6bfdbb31d_875x583.jpg");
+        ImageView imageView = (ImageView) rootView.findViewById(R.id.activity_product_image);
+        new Helper.ImageLoader(imageView).execute(args.getString(PRODUCT_IMAGE));
 
         return rootView;
     }

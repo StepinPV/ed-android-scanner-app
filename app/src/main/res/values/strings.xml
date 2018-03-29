@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">ЕД Склад</string>
     <string name="activity_product_packing_section">Место: %s</string>
-    <string name="activity_product_packing_amount">Объем: %s %s</string>
+    <string name="activity_product_packing_amount">%s %s</string>
     <string name="order_client_orders_count">Кол-во заказов: %s</string>
-    <string name="order_client_status">Статус: %s</string>
+    <string name="product_packing_quantity">%s/%s</string>
     <string name="order_status_unstarted">Заказ свободен</string>
     <string name="order_status_pause">Заказ заморожен</string>
     <string name="order_status_active"></string>
