@@ -40,13 +40,13 @@
         <android.support.v4.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
             android:id="@+id/productsRefresh"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_weight="1">
 
         <ListView
             android:id="@+id/productListView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"/>
+            android:layout_height="match_parent"/>
 
         </android.support.v4.widget.SwipeRefreshLayout>
 

@@ -2,6 +2,7 @@ package com.example.ed.edscannerapp.packing;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -153,16 +155,34 @@ public class ProductActivity extends AppCompatActivity {
                 "Введите штрих код товара в поле ввода",
                 "Ручной ввод штрихкода", R.layout.barcode);
 
+        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
         builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
                 String barcode = textView.getText().toString();
                 checkProduct(false, barcode, true);
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
             }
-        }).setNegativeButton("Отмена", null);
+        }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+            }
+        });
 
-        builder.create().show();
+        AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            }
+        });
+
+        dialog.show();
     }
 
     public void manualButtonHandler(View w){
@@ -296,13 +316,16 @@ public class ProductActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch(requestCode){
             case PRODUCTS_ACTIVITY_CODE:
-                String productId = intent.getStringExtra("product_id");
 
                 updateData();
 
-                if(!productId.equals("")){
-                    this.selectProduct(productId);
+                if(intent != null){
+                    String productId = intent.getStringExtra("product_id");
+                    if(!productId.equals("")){
+                        this.selectProduct(productId);
+                    }
                 }
+
                 break;
 
         }

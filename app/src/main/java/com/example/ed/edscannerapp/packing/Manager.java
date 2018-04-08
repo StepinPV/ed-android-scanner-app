@@ -90,7 +90,8 @@ public class Manager {
 
             @Override
             public void onFailure(Call<OrderResponse> call, Throwable t) {
-                callback.error(t.getMessage());
+                //callback.error(t.getMessage());
+                callback.error("Отсутствует соединение с интернетом!");
             }
 
         });
@@ -121,7 +122,7 @@ public class Manager {
 
             @Override
             public void onFailure(Call<ProductsResponse> call, Throwable t) {
-                //TODO
+                callback.error("Отсутствует соединение с интернетом!");
             }
         });
     }
@@ -169,7 +170,7 @@ public class Manager {
 
             @Override
             public void onFailure(Call<BaseResponse> call, Throwable t) {
-                callback.error(t.getMessage());
+                callback.error("Отсутствует соединение с интернетом!");
             }
         });
     }
@@ -200,7 +201,7 @@ public class Manager {
 
             @Override
             public void onFailure(Call<BaseResponse> call, Throwable t) {
-                callback.error(t.getMessage());
+                callback.error("Отсутствует соединение с интернетом!");
             }
         });
     }

@@ -11,8 +11,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -98,42 +100,82 @@ public class ProductsActivity extends AppCompatActivity implements SwipeRefreshL
                 manyQuantity ? "Введите количество товара" : "",
                 "Отминить упаковку товара?", manyQuantity ? R.layout.barcode : null);
 
-        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
+        final AlertDialog dialog;
+        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        builder.setPositiveButton("Подтвердить", null).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                int quantity = 1;
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+            }
+        });
 
-                if(manyQuantity){
-                    TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
-                    int inputQuantity = Integer.parseInt(textView.getText().toString());
+        dialog = builder.create();
 
-                    if(inputQuantity > packingQuantity){
-                        inputQuantity = packingQuantity;
-                    }
-                    else if(packingQuantity < 1){
-                        inputQuantity = 1;
-                    }
-                    quantity = inputQuantity;
-                }
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
-                manager.cancelProduct(product.getId(), quantity, new Manager.CancelProductCallback() {
-                    @Override
-                    public void success() {
-                        adapter.notifyDataSetChanged();
-                    }
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
 
                     @Override
-                    public void error(String message) {
-                        Helper.showErrorMessage(ProductsActivity.this, message);
+                    public void onClick(View view) {
+
+                        int quantity = 1;
+                        boolean isValid = true;
+                        TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
+
+                        if(manyQuantity){
+                            int inputQuantity = 1;
+
+                            String input = textView.getText().toString();
+
+                            if(input.equals("")){
+                                isValid = false;
+                            }
+                            else {
+                                inputQuantity = Integer.parseInt(input);
+
+                                if(inputQuantity < 1 || inputQuantity > packingQuantity){
+                                    isValid = false;
+                                }
+                            }
+
+                            quantity = inputQuantity;
+                        }
+
+                        if(isValid){
+                            dialog.dismiss();
+                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
+                            manager.cancelProduct(product.getId(), quantity, new Manager.CancelProductCallback() {
+                                @Override
+                                public void success() {
+                                    adapter.notifyDataSetChanged();
+                                }
+
+                                @Override
+                                public void error(String message) {
+                                    Helper.showErrorMessage(ProductsActivity.this, message);
+                                }
+                            });
+                        }
+                        else {
+                            textView.setError("Ввведите корректное значение!");
+                        }
+
+
                     }
                 });
-
             }
-        }).setNegativeButton("Отмена", null);
+        });
 
-        builder.setNegativeButton("Отмена", null);
 
-        builder.create().show();
+        dialog.show();
     }
 
     @Override
