@@ -134,7 +134,7 @@ public class ProductActivity extends AppCompatActivity {
     public void completeOrder(View w) {
         manager.completeOrder(new Manager.GetOrderCallback() {
             @Override
-            public void success(Order order) {
+            public void success(Order order, boolean hold) {
                 exit();
             }
 

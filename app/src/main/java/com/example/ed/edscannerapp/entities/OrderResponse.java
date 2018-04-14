@@ -7,7 +7,14 @@ public class OrderResponse extends BaseResponse {
     @SerializedName("order")
     private Order order;
 
+    @SerializedName("hold")
+    private boolean hold;
+
     public Order getOrder(){
         return order;
+    }
+
+    public boolean getHold(){
+        return hold;
     }
 }
