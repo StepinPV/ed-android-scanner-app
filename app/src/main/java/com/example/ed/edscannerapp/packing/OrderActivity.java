@@ -32,9 +32,14 @@ public class OrderActivity extends AppCompatActivity {
         manager = Manager.getInstance();
         manager.getOrder("", new Manager.GetOrderCallback(){
             @Override
-            public void success(Order order){
-                setContentView(R.layout.activity_order);
-                updateOrder(order);
+            public void success(Order order, boolean hold){
+
+                if(hold){
+                    openOrdersActivity();
+                }
+                else {
+                    updateOrder(order, hold);
+                }
             };
             @Override
             public void error(String message){
@@ -44,11 +49,17 @@ public class OrderActivity extends AppCompatActivity {
         });
     }
 
-    private void updateOrderById(String orderId){
+    //TODO checkHold -  ебаный костыль
+    private void updateOrderById(String orderId, final boolean checkHold){
         manager.getOrder(orderId, new Manager.GetOrderCallback(){
             @Override
-            public void success(Order order){
-                updateOrder(order);
+            public void success(Order order, boolean hold){
+
+                if(order == null && checkHold && hold){
+                    openOrdersActivity();
+                }
+
+                updateOrder(order, hold);
             };
             @Override
             public void error(String message){
@@ -57,12 +68,14 @@ public class OrderActivity extends AppCompatActivity {
         });
     }
 
-    private void updateOrder(Order order){
-        updateComponents(order);
+    private void updateOrder(Order order, boolean hold){
+        setContentView(R.layout.activity_order);
 
         if(order != null){
             selectedOrderId = order.getId();
         }
+
+        updateComponents(order);
     }
 
     public void exitButtonHandler(View w){
@@ -72,7 +85,7 @@ public class OrderActivity extends AppCompatActivity {
     public void startButtonHandler(View w){
         manager.startOrder(selectedOrderId, new Manager.GetOrderCallback(){
             @Override
-            public void success(Order order){
+            public void success(Order order, boolean hold){
                 OrderActivity.this.openScanningActivity();
             };
             @Override
@@ -87,8 +100,8 @@ public class OrderActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         manager.getOrder("", new Manager.GetOrderCallback(){
                             @Override
-                            public void success(Order order){
-                                updateOrder(order);
+                            public void success(Order order, boolean hold){
+                                updateOrder(order, hold);
                             };
                             @Override
                             public void error(String message){
@@ -114,7 +127,7 @@ public class OrderActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int id) {
                 manager.pauseOrder(new Manager.GetOrderCallback(){
                     @Override
-                    public void success(Order order){
+                    public void success(Order order, boolean hold){
                         openPauseActivity(order.getId());
                     };
                     @Override
@@ -139,8 +152,8 @@ public class OrderActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int id) {
                 manager.cancelOrder(new Manager.GetOrderCallback(){
                     @Override
-                    public void success(Order order){
-                        updateOrder(order);
+                    public void success(Order order, boolean hold){
+                        updateOrder(order, hold);
                     };
                     @Override
                     public void error(String message){
@@ -155,6 +168,10 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     public void ordersButtonHandler(View w){
+        openOrdersActivity();
+    }
+
+    public void openOrdersActivity(){
         startActivityForResult(new Intent(this, OrdersActivity.class), ORDERS_ACTIVITY_CODE);
     }
 
@@ -176,15 +193,15 @@ public class OrderActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch(requestCode){
             case ORDERS_ACTIVITY_CODE:
-                updateOrderById(intent.getStringExtra("order_id"));
+                updateOrderById(intent.getStringExtra("order_id"), false);
                 break;
 
             case PRODUCT_ACTIVITY_CODE:
-                updateOrderById("");
+                updateOrderById("", true);
                 break;
 
             case PAUSE_ACTIVITY_CODE:
-                updateOrderById("");
+                updateOrderById("", true);
                 break;
 
         }
