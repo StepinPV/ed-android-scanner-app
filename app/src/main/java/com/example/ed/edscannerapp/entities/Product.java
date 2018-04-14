@@ -12,6 +12,9 @@ public class Product {
     @SerializedName("barcode")
     private String barcode;
 
+    @SerializedName("sku")
+    private String sku;
+
     @SerializedName("name")
     private String name;
 
@@ -49,8 +52,12 @@ public class Product {
         return id;
     }
 
-    public String getBarcode(){
-        return barcode;
+    public boolean checkBarcode(String code){
+        return barcode.equals(code) || barcode.equals(sku);
+    }
+
+    public boolean hasBarcode(){
+        return barcode != null && !barcode.equals("") || sku != null && !sku.equals("");
     }
 
     public String getName(){

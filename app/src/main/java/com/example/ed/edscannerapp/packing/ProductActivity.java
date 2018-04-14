@@ -78,12 +78,12 @@ public class ProductActivity extends AppCompatActivity {
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
         soundID = soundPool.load(this, R.raw.scan,1);
 
-        barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
+        /*barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
             @Override
             public void success(String barcode) {
                 checkProduct(false, barcode, false);
             }
-        });
+        });*/
 
         TextView userNameView = (TextView) findViewById(R.id.product_user_name);
         userNameView.setText(AccountManager.getInstance().getLogin());
@@ -108,9 +108,8 @@ public class ProductActivity extends AppCompatActivity {
     private void updateButtons(){
         Product currentProduct = ProductsHelper.getUnscannedByIndex(manager.getSavedProducts(), currentPagePosition);
 
-        String barcode = currentProduct.getBarcode();
         //TODO Должно быть не здесь
-        hasBarcode = barcode != null && !barcode.equals("");
+        hasBarcode = currentProduct.hasBarcode();
 
         ((ImageButton) findViewById(R.id.manualButton))
                 .setVisibility((!hasBarcode || currentProduct.getRejectCount() >= 2) ? ImageButton.VISIBLE : ImageButton.GONE);
@@ -212,7 +211,7 @@ public class ProductActivity extends AppCompatActivity {
             successBarcode(currentProduct.getId(), true);
         }
         else {
-            if(barcode.equals(currentProduct.getBarcode())){
+            if(currentProduct.checkBarcode(barcode)){
                 soundPool.play(soundID, 1, 1,1,0, 1f);
                 successBarcode(currentProduct.getId(), false);
             }
@@ -370,9 +369,9 @@ public class ProductActivity extends AppCompatActivity {
         return super.onKeyUp(keyCode, event);
     }
 
-    @Override
+    /*@Override
     public void onDestroy(){
         barcodeScanner.destroy();
         super.onDestroy();
-    }
+    }*/
 }
