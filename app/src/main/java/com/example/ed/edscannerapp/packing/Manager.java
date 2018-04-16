@@ -37,7 +37,7 @@ public class Manager {
     }
 
     public interface GetOrderCallback {
-        void success(Order order, boolean hold);
+        void success(Order order);
         void error(String message);
     }
 
@@ -75,9 +75,9 @@ public class Manager {
                     OrderResponse orderResponse = response.body();
 
                     if(orderResponse.isSuccessful()){
-                        Order order = orderResponse.getOrder();
+                        Order order = response.body().getOrder();
                         activeOrderId = (order != null && order.getStatus().equals(Order.STATUS_ACTIVE)) ? order.getId() : null;
-                        callback.success(order, orderResponse.getHold());
+                        callback.success(order);
                     }
                     else {
                         callback.error(orderResponse.getMessage());
