@@ -53,7 +53,7 @@ public class Product {
     }
 
     public boolean checkBarcode(String code){
-        return barcode.equals(code) || barcode.equals(sku);
+        return !barcode.equals("") && barcode.equals(code) || !sku.equals("") && sku.equals(code);
     }
 
     public boolean hasBarcode(){
@@ -61,7 +61,7 @@ public class Product {
     }
 
     public String getName(){
-        return name;
+        return name.replaceAll("&quot;", "\"");
     }
 
     public String getSection(){

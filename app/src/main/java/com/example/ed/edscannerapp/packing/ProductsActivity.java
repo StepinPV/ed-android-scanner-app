@@ -103,7 +103,7 @@ public class ProductsActivity extends AppCompatActivity implements SwipeRefreshL
         final AlertDialog dialog;
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        builder.setPositiveButton("Подтвердить", null).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Подтвердить", null).setNegativeButton("Нет", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);

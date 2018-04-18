@@ -78,12 +78,12 @@ public class ProductActivity extends AppCompatActivity {
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
         soundID = soundPool.load(this, R.raw.scan,1);
 
-        /*barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
+        barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
             @Override
             public void success(String barcode) {
                 checkProduct(false, barcode, false);
             }
-        });*/
+        });
 
         TextView userNameView = (TextView) findViewById(R.id.product_user_name);
         userNameView.setText(AccountManager.getInstance().getLogin());
@@ -369,9 +369,9 @@ public class ProductActivity extends AppCompatActivity {
         return super.onKeyUp(keyCode, event);
     }
 
-    /*@Override
+    @Override
     public void onDestroy(){
         barcodeScanner.destroy();
         super.onDestroy();
-    }*/
+    }
 }

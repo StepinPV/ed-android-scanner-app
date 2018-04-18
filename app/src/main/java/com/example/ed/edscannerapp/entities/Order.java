@@ -21,7 +21,7 @@ public class Order {
     private String orderCount;
 
     @SerializedName("vip")
-    private boolean vip;
+    private String vip;
 
     @SerializedName("packing_comment")
     private String comment;
@@ -51,7 +51,7 @@ public class Order {
     }
 
     public boolean isVip(){
-        return this.vip;
+        return this.vip.equals("1");
     }
 
     public String getStatus(){

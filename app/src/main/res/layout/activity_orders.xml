@@ -43,24 +43,32 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
 
-        <ListView
-            android:id="@+id/orders_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <ListView
+                    android:id="@+id/orders_list"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent" />
+
+                <TextView
+                    android:id="@+id/orders_no_orders_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textColor="#000"
+                    android:text="Поздравляем!\nЗаказов на упаковку больше нет"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textSize="20sp"
+                    android:layout_weight="1"
+                    android:visibility="gone" />
+
+            </LinearLayout>
 
         </android.support.v4.widget.SwipeRefreshLayout>
-
-        <TextView
-            android:id="@+id/orders_no_orders_message"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textColor="#000"
-            android:text="Поздравляем!\nЗаказов на упаковку больше нет"
-            android:textAlignment="center"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:visibility="gone"
-            android:layout_weight="1"/>
 
         <Button
             android:layout_width="match_parent"

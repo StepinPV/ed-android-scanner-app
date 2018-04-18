@@ -199,7 +199,7 @@ public class OrderActivity extends AppCompatActivity {
         boolean isActive = false;
 
         ((LinearLayout) findViewById(R.id.order_client_block)).setVisibility(hasOrder ? LinearLayout.VISIBLE : LinearLayout.GONE);
-        ((TextView) findViewById(R.id.order_client_no_orders_message)).setVisibility(!hasOrder ? LinearLayout.VISIBLE : LinearLayout.GONE);
+        ((LinearLayout) findViewById(R.id.order_client_no_orders_message)).setVisibility(!hasOrder ? LinearLayout.VISIBLE : LinearLayout.GONE);
 
         if(hasOrder){
             //имя
