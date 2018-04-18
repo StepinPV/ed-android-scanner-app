@@ -51,7 +51,7 @@ public class Order {
     }
 
     public boolean isVip(){
-        return this.vip.equals("1");
+        return this.vip != null && this.vip.equals("1");
     }
 
     public String getStatus(){

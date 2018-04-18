@@ -14,6 +14,7 @@ public class BarcodeScanner {
     private Barcode2DWithSoft barcode2DWithSoft;
     private Activity activity;
     private ScanCallback scanCallback;
+    private boolean scanning = false;
 
     public interface ScanCallback {
         void success(String barcode);
@@ -23,18 +24,6 @@ public class BarcodeScanner {
         this.activity = activity;
         this.scanCallback = scanCallback;
 
-        if (ContextCompat.checkSelfPermission(activity, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.CAMERA},1);
-        }
-
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[] { Manifest.permission.ACCESS_COARSE_LOCATION },1);
-        }
-
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, },1);
-        }
-
         new InitTask().execute();
     }
 
@@ -42,12 +31,14 @@ public class BarcodeScanner {
         if(barcode2DWithSoft!=null) {
             barcode2DWithSoft.scan();
             barcode2DWithSoft.setScanCallback(scanBack);
+            scanning = true;
         }
     }
 
     public void stopScan() {
-        if (barcode2DWithSoft != null){
+        if (barcode2DWithSoft != null && scanning){
             barcode2DWithSoft.stopScan();
+            scanning = false;
         }
     }
 

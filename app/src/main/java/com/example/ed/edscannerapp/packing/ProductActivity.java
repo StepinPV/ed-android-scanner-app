@@ -349,13 +349,17 @@ public class ProductActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode==139 && !confirmingProcess && hasBarcode){
-            if(event.getRepeatCount() == 0) {
-                barcodeScanner.startScan();
-                return true;
+        if(keyCode == 139) {
+            if(!confirmingProcess && hasBarcode){
+                if(event.getRepeatCount() == 0) {
+                    barcodeScanner.startScan();
+                }
             }
+            return true;
         }
-        return super.onKeyDown(keyCode, event);
+        else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 
     @Override
@@ -363,10 +367,12 @@ public class ProductActivity extends AppCompatActivity {
         if(keyCode==139){
             if(event.getRepeatCount() == 0) {
                 barcodeScanner.stopScan();
-                return true;
             }
+            return true;
         }
-        return super.onKeyUp(keyCode, event);
+        else {
+            return super.onKeyUp(keyCode, event);
+        }
     }
 
     @Override
