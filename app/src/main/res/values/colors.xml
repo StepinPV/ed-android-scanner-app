@@ -17,6 +17,7 @@
     <color name="orderListUnstarted">#ceeaa6</color>
     <color name="orderListPaused">#d5f7ff</color>
     <color name="orderListPartial">#fdc8c7</color>
+    <color name="orderListActive">#fffa9b</color>
 
     <color name="order_status_bg_unstarted">#ceeaa6</color>
     <color name="order_status_bg_pause">#d5f7ff</color>

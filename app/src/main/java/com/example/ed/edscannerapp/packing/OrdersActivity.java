@@ -51,6 +51,8 @@ public class OrdersActivity extends AppCompatActivity implements SwipeRefreshLay
         userNameView.setText(AccountManager.getInstance().getLogin());
 
         listView = (ListView) findViewById(R.id.orders_list);
+        TextView emptyText = (TextView) findViewById(R.id.orders_no_orders_message);
+        listView.setEmptyView(emptyText);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
@@ -106,9 +108,6 @@ public class OrdersActivity extends AppCompatActivity implements SwipeRefreshLay
                 adapter.notifyDataSetChanged();
             }
         }
-
-        listView.setVisibility(hasOrders ? ListView.VISIBLE : ListView.GONE);
-        ((TextView) findViewById(R.id.orders_no_orders_message)).setVisibility(hasOrders ? Button.GONE : Button.VISIBLE);
     }
 
     @Override
@@ -173,26 +172,35 @@ public class OrdersActivity extends AppCompatActivity implements SwipeRefreshLay
             convertView = LayoutInflater.from(context).inflate(R.layout.order, null);
 
             ((TextView)convertView.findViewById(R.id.order_id)).setText(item.getId());
-            ((TextView)convertView.findViewById(R.id.order_client_name)).setText(item.getName());
             ((TextView)convertView.findViewById(R.id.order_client_shipping_zone)).setText(item.getShippingZone());
 
             int color;
+            String secondColumnValue;
             switch (item.getStatus())
             {
                 case Order.STATUS_UNSTARTED:
                     color = R.color.orderListUnstarted;
+                    secondColumnValue = item.getName();
                     break;
                 case Order.STATUS_PAUSED:
                     color = R.color.orderListPaused;
+                    secondColumnValue = item.getName();
                     break;
                 case Order.STATUS_PARTIAL:
                     color = R.color.orderListPartial;
+                    secondColumnValue = item.getName();
+                    break;
+                case Order.STATUS_ACTIVE:
+                    color = R.color.orderListActive;
+                    secondColumnValue = "Заказ собирает:\n" + item.getUserName();
                     break;
                 default:
                     color = R.color.orderListDefault;
+                    secondColumnValue = item.getName();
                     break;
             }
             convertView.setBackgroundResource(color);
+            ((TextView)convertView.findViewById(R.id.order_client_name)).setText(secondColumnValue);
 
             return convertView;
         }

@@ -106,22 +106,13 @@ public class OrderActivity extends AppCompatActivity {
     public void pauseButtonHandler(View w){
 
         AlertDialog.Builder builder = Helper.getDialogBuilder(this,
-                "Вы действительно хотите заморозить сборку данного заказа?",
+                "Вы действительно хотите перейти к процессу заморозки заказа?",
                 "", null);
 
         builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                manager.pauseOrder(new Manager.GetOrderCallback(){
-                    @Override
-                    public void success(Order order){
-                        openPauseActivity(order.getId());
-                    };
-                    @Override
-                    public void error(String message){
-                        Helper.showErrorMessage(OrderActivity.this, message);
-                    };
-                });
+                openPauseActivity(selectedOrderId);
             }
         }).setNegativeButton("Отмена", null);
 

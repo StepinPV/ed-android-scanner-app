@@ -8,7 +8,7 @@
     <string name="order_status_pause">Заказ заморожен</string>
     <string name="order_status_active"></string>
     <string name="order_status_default"></string>
-    <string name="pause_order_id">Заказ №%s заморожен </string>
+    <string name="pause_order_id">Процесс заморозки заказа №%s </string>
     <string name="account_manager_login">com_example_ed_edscannerapp_account_manager_login</string>
     <string name="account_manager_password">com_example_ed_edscannerapp_account_manager_password</string>
     <string name="account_manager_salt">com_example_ed_edscannerapp_account_manager_salt</string>

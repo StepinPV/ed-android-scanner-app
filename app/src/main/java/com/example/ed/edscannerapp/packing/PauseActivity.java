@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.example.ed.edscannerapp.AccountManager;
 import com.example.ed.edscannerapp.Helper;
 import com.example.ed.edscannerapp.R;
+import com.example.ed.edscannerapp.entities.Order;
 import com.example.ed.edscannerapp.entities.Product;
 import com.example.ed.edscannerapp.entities.Products;
 import com.example.ed.edscannerapp.entities.ProductsResponse;
@@ -51,6 +52,19 @@ public class PauseActivity extends AppCompatActivity {
 
     public void exit(View w){
         finish();
+    }
+
+    public void confirm(View w) {
+        manager.pauseOrder(new Manager.GetOrderCallback(){
+            @Override
+            public void success(Order order){
+                finish();
+            };
+            @Override
+            public void error(String message){
+                Helper.showErrorMessage(PauseActivity.this, message);
+            };
+        });
     }
 
     public void initList(String orderId){

@@ -17,6 +17,7 @@ import android.view.View;
 
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -143,6 +144,13 @@ public class ProductActivity extends AppCompatActivity {
                 Helper.showErrorMessage(ProductActivity.this, message);
             }
         });
+    }
+
+    public void confirmComment(View w) {
+        Button completeButton = (Button) findViewById(R.id.product_complete_button);
+        CheckBox checkbox = (CheckBox) findViewById(R.id.product_complete_checkbox);
+
+        completeButton.setEnabled(checkbox.isChecked());
     }
 
     public void barcodeButtonHandler(View w){
@@ -281,8 +289,6 @@ public class ProductActivity extends AppCompatActivity {
 
         ((ViewPager) findViewById(R.id.activity_product_viewpager)).setVisibility(complete ? ViewPager.GONE : ViewPager.VISIBLE);
         ((LinearLayout) findViewById(R.id.product_counters)).setVisibility(complete ? LinearLayout.GONE : LinearLayout.VISIBLE);
-        ((TextView) findViewById(R.id.product_complete_message)).setVisibility(complete ? LinearLayout.VISIBLE : LinearLayout.GONE);
-        ((Button) findViewById(R.id.product_complete_button)).setVisibility(complete ? LinearLayout.VISIBLE : LinearLayout.GONE);
 
         if(!complete){
             pagerAdapter.setProducts(manager.getSavedProducts());
@@ -291,6 +297,46 @@ public class ProductActivity extends AppCompatActivity {
             updateProgressCounter();
             updatePositionCounter();
             updateButtons();
+            ((TextView) findViewById(R.id.product_complete_message)).setVisibility(LinearLayout.GONE);
+            ((TextView) findViewById(R.id.product_complete_comment)).setVisibility(LinearLayout.GONE);
+            ((Button) findViewById(R.id.product_complete_button)).setVisibility(LinearLayout.GONE);
+
+        }
+        else {
+            manager.getOrder("", new Manager.GetOrderCallback(){
+                @Override
+                public void success(Order order){
+                    ((TextView) findViewById(R.id.product_complete_message)).setVisibility(LinearLayout.VISIBLE);
+
+                    TextView commentView = (TextView) findViewById(R.id.product_complete_comment);
+                    TextView commentViewTitle = (TextView) findViewById(R.id.product_complete_comment_title);
+                    Button completeButton = (Button) findViewById(R.id.product_complete_button);
+                    CheckBox checkbox = (CheckBox) findViewById(R.id.product_complete_checkbox);
+
+                    completeButton.setVisibility(LinearLayout.VISIBLE);
+
+                    String comment = order.getComment();
+                    if(comment != null && !comment.equals("")){
+                        commentView.setText(comment);
+                        commentView.setVisibility(TextView.VISIBLE);
+                        commentViewTitle.setVisibility(TextView.VISIBLE);
+                        checkbox.setVisibility(CheckBox.VISIBLE);
+                        checkbox.setChecked(false);
+                        completeButton.setEnabled(false);
+                    }
+                    else {
+                        commentView.setVisibility(LinearLayout.GONE);
+                        commentViewTitle.setVisibility(TextView.GONE);
+                        checkbox.setVisibility(CheckBox.GONE);
+                        completeButton.setEnabled(true);
+                    }
+
+                };
+                @Override
+                public void error(String message){
+                    Helper.showErrorMessage(ProductActivity.this, message);
+                };
+            });
         }
 
     }

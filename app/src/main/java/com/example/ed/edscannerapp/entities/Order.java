@@ -26,6 +26,9 @@ public class Order {
     @SerializedName("packing_comment")
     private String comment;
 
+    @SerializedName("user_name")
+    private String userName;
+
     final public static String STATUS_UNSTARTED = "1";
     final public static String STATUS_PAUSED = "4";
     final public static String STATUS_ACTIVE = "5";
@@ -62,4 +65,7 @@ public class Order {
         return this.comment;
     }
 
+    public String getUserName() {
+        return this.userName;
+    }
 }
