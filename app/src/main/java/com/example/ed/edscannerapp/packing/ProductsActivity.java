@@ -25,6 +25,7 @@ import com.example.ed.edscannerapp.R;
 import com.example.ed.edscannerapp.entities.Order;
 import com.example.ed.edscannerapp.entities.Product;
 import com.example.ed.edscannerapp.entities.Products;
+import com.example.ed.edscannerapp.entities.User;
 
 import java.util.List;
 import java.util.Timer;
@@ -45,8 +46,13 @@ public class ProductsActivity extends AppCompatActivity implements SwipeRefreshL
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
-        TextView userNameView = (TextView) findViewById(R.id.products_user_name);
-        userNameView.setText(AccountManager.getInstance().getLogin());
+        AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
+            @Override
+            public void success(User user) {
+                TextView userNameView = (TextView) findViewById(R.id.products_user_name);
+                userNameView.setText(user.getFullName());
+            }
+        });
 
         manager.getProducts(new Manager.GetProductsCallback(){
 
@@ -98,7 +104,7 @@ public class ProductsActivity extends AppCompatActivity implements SwipeRefreshL
 
         AlertDialog.Builder builder = Helper.getDialogBuilder(this,
                 manyQuantity ? "Введите количество товара" : "",
-                "Отминить упаковку товара?", manyQuantity ? R.layout.barcode : null);
+                "Отменить упаковку товара?", manyQuantity ? R.layout.barcode : null);
 
         final AlertDialog dialog;
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);

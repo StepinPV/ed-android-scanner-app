@@ -23,6 +23,7 @@ import com.example.ed.edscannerapp.R;
 import com.example.ed.edscannerapp.entities.Order;
 import com.example.ed.edscannerapp.entities.Orders;
 import com.example.ed.edscannerapp.entities.OrdersResponse;
+import com.example.ed.edscannerapp.entities.User;
 import com.example.ed.edscannerapp.server.BL;
 
 import java.util.HashMap;
@@ -47,8 +48,13 @@ public class OrdersActivity extends AppCompatActivity implements SwipeRefreshLay
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
-        TextView userNameView = (TextView) findViewById(R.id.orders_user_name);
-        userNameView.setText(AccountManager.getInstance().getLogin());
+        AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
+            @Override
+            public void success(User user) {
+                TextView userNameView = (TextView) findViewById(R.id.orders_user_name);
+                userNameView.setText(user.getFullName());
+            }
+        });
 
         listView = (ListView) findViewById(R.id.orders_list);
         TextView emptyText = (TextView) findViewById(R.id.orders_no_orders_message);
@@ -59,6 +65,11 @@ public class OrdersActivity extends AppCompatActivity implements SwipeRefreshLay
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Order order = (Order) parent.getItemAtPosition(position);
+
+                if(order.getStatus().equals(Order.STATUS_ACTIVE)){
+                    return;
+                }
+
                 OrdersActivity.this.exit(order.getId());
             }
 

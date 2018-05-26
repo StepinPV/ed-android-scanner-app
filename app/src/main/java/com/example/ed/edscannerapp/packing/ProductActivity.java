@@ -25,11 +25,13 @@ import android.widget.Toast;
 
 import com.example.ed.edscannerapp.AccountManager;
 import com.example.ed.edscannerapp.BarcodeScanner;
+import com.example.ed.edscannerapp.CheckActivity;
 import com.example.ed.edscannerapp.Helper;
 import com.example.ed.edscannerapp.R;
 import com.example.ed.edscannerapp.entities.Order;
 import com.example.ed.edscannerapp.entities.Product;
 import com.example.ed.edscannerapp.entities.Products;
+import com.example.ed.edscannerapp.entities.User;
 
 import java.util.Timer;
 
@@ -86,8 +88,13 @@ public class ProductActivity extends AppCompatActivity {
             }
         });
 
-        TextView userNameView = (TextView) findViewById(R.id.product_user_name);
-        userNameView.setText(AccountManager.getInstance().getLogin());
+        AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
+            @Override
+            public void success(User user) {
+                TextView userNameView = (TextView) findViewById(R.id.product_user_name);
+                userNameView.setText(user.getFullName());
+            }
+        });
 
         TextView orderIdView = (TextView) findViewById(R.id.product_order_id);
         orderIdView.setText("№" + manager.getActiveOrderId());
@@ -130,6 +137,10 @@ public class ProductActivity extends AppCompatActivity {
     public void exit() {
         setResult(Activity.RESULT_CANCELED);
         finish();
+    }
+
+    public void checkProduct(View w){
+        startActivity(new Intent(this, CheckActivity.class));
     }
 
     public void completeOrder(View w) {

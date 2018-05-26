@@ -23,6 +23,7 @@ import com.example.ed.edscannerapp.entities.Order;
 import com.example.ed.edscannerapp.entities.Product;
 import com.example.ed.edscannerapp.entities.Products;
 import com.example.ed.edscannerapp.entities.ProductsResponse;
+import com.example.ed.edscannerapp.entities.User;
 import com.example.ed.edscannerapp.server.BL;
 
 import retrofit2.Call;
@@ -43,8 +44,13 @@ public class PauseActivity extends AppCompatActivity {
 
         this.initList(orderId);
 
-        TextView userNameView = (TextView) findViewById(R.id.products_user_name);
-        userNameView.setText(AccountManager.getInstance().getLogin());
+        AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
+            @Override
+            public void success(User user) {
+                TextView userNameView = (TextView) findViewById(R.id.products_user_name);
+                userNameView.setText(user.getFullName());
+            }
+        });
 
         TextView orderIdView = (TextView) findViewById(R.id.pause_order_id);
         orderIdView.setText(getString(R.string.pause_order_id, orderId));

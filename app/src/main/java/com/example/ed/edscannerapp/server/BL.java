@@ -1,6 +1,8 @@
 package com.example.ed.edscannerapp.server;
 
 import com.example.ed.edscannerapp.entities.BaseResponse;
+import com.example.ed.edscannerapp.entities.CheckResponse;
+import com.example.ed.edscannerapp.entities.InfoResponse;
 import com.example.ed.edscannerapp.entities.OrdersResponse;
 import com.example.ed.edscannerapp.entities.ProductsResponse;
 import com.example.ed.edscannerapp.entities.OrderResponse;
@@ -27,6 +29,14 @@ public class BL {
 
     static public Call<VerificationResponse> verification(String login, String salt, String sig){
         return EP.verification(login, salt, sig);
+    }
+
+    static public Call<InfoResponse> info(String login, String salt, String sig){
+        return EP.info(login, salt, sig);
+    }
+
+    static public Call<CheckResponse> checkProduct(String login, String salt, String sig, String barcode){
+        return EP.checkProduct(login, salt, sig, barcode);
     }
 
     static public Call<OrderResponse> startOrder(String login, String salt, String sig, String orderId){

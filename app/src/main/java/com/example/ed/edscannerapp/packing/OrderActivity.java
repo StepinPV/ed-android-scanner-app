@@ -15,6 +15,7 @@ import com.example.ed.edscannerapp.AccountManager;
 import com.example.ed.edscannerapp.Helper;
 import com.example.ed.edscannerapp.R;
 import com.example.ed.edscannerapp.entities.Order;
+import com.example.ed.edscannerapp.entities.User;
 
 public class OrderActivity extends AppCompatActivity {
 
@@ -167,7 +168,11 @@ public class OrderActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch(requestCode){
             case ORDERS_ACTIVITY_CODE:
-                updateOrderById(intent.getStringExtra("order_id"));
+                String orderId = "";
+                if(intent != null){
+                    orderId = intent.getStringExtra("order_id");
+                }
+                updateOrderById(orderId);
                 break;
 
             case PRODUCT_ACTIVITY_CODE:
@@ -183,8 +188,13 @@ public class OrderActivity extends AppCompatActivity {
 
     private void updateComponents(Order order){
 
-        TextView userNameView = (TextView) findViewById(R.id.order_user_name);
-        userNameView.setText(AccountManager.getInstance().getLogin());
+        AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
+            @Override
+            public void success(User user) {
+                TextView userNameView = (TextView) findViewById(R.id.order_user_name);
+                userNameView.setText(user.getFullName());
+            }
+        });
 
         boolean hasOrder = order != null;
         boolean isActive = false;

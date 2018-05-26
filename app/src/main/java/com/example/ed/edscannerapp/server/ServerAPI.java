@@ -1,10 +1,12 @@
 package com.example.ed.edscannerapp.server;
 
 import com.example.ed.edscannerapp.entities.BaseResponse;
+import com.example.ed.edscannerapp.entities.CheckResponse;
 import com.example.ed.edscannerapp.entities.OrdersResponse;
 import com.example.ed.edscannerapp.entities.ProductsResponse;
 import com.example.ed.edscannerapp.entities.OrderResponse;
 import com.example.ed.edscannerapp.entities.VerificationResponse;
+import com.example.ed.edscannerapp.entities.InfoResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -29,6 +31,16 @@ public interface ServerAPI {
     @POST(path + "verification")
     Call<VerificationResponse> verification(@Field("login") String login,
                                             @Field("salt") String salt, @Field("sig") String sig);
+
+    @FormUrlEncoded
+    @POST(path + "info")
+    Call<InfoResponse> info(@Field("login") String login,
+                                            @Field("salt") String salt, @Field("sig") String sig);
+
+    @FormUrlEncoded
+    @POST(path + "product_search")
+    Call<CheckResponse> checkProduct(@Field("login") String login,
+                             @Field("salt") String salt, @Field("sig") String sig, @Field("code") String barcode);
 
     @FormUrlEncoded
     @POST(path + "order_get")

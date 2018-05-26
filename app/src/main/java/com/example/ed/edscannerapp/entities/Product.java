@@ -9,6 +9,9 @@ public class Product {
     @SerializedName("order_product_id")
     private String id;
 
+    @SerializedName("product_id")
+    private String _id;
+
     @SerializedName("barcode")
     private String barcode;
 
@@ -50,6 +53,11 @@ public class Product {
 
     public String getId(){
         return id;
+    }
+
+    //TODO
+    public String getProductId(){
+        return _id;
     }
 
     public boolean checkBarcode(String code){

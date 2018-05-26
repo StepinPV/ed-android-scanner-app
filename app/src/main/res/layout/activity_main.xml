@@ -29,19 +29,21 @@
                 android:textSize="16dp"
                 android:text="Неизвестный" />
 
-            <ImageButton
-                android:id="@+id/imageButton2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:textAlignment="textEnd"
+                android:textColor="#fff"
+                android:gravity="center"
+                android:layout_marginLeft="8dp"
                 android:layout_marginRight="16dp"
-                app:srcCompat="@drawable/exit"
-                android:onClick="logout"/>
+                android:textSize="16dp"
+                android:text="V 0.12" />
 
         </LinearLayout>
 
         <Button
-            android:id="@+id/button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="2dp"
@@ -54,7 +56,6 @@
             android:textSize="24sp" />
 
         <Button
-            android:id="@+id/button2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="2dp"
@@ -65,14 +66,36 @@
             android:textSize="24sp" />
 
         <Button
-            android:id="@+id/button3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginBottom="2dp"
             android:background="@color/colorFirst"
             android:text="ИНВЕНТАРИЗАЦИЯ"
             android:textColor="@android:color/background_light"
             android:textSize="24sp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginBottom="2dp"
+            android:background="@color/colorFirst"
+            android:text="Проверить товар"
+            android:textColor="@android:color/background_light"
+            android:textSize="24sp"
+            android:onClick="checkProduct"/>
+
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/colorFirst"
+            android:text="ВЫХОД"
+            android:textColor="@android:color/background_light"
+            android:textSize="24sp"
+            android:onClick="logout"/>
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

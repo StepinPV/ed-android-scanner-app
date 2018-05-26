@@ -32,6 +32,18 @@
                 android:text="Неизвестный" />
 
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:textAlignment="center"
+                android:textColor="#fff"
+                android:layout_marginLeft="16dp"
+                android:textSize="16dp"
+                android:text="Проверить"
+                android:onClick="checkProduct"/>
+
+            <TextView
                 android:id="@+id/product_order_id"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

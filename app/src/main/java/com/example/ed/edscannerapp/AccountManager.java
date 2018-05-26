@@ -3,7 +3,10 @@ package com.example.ed.edscannerapp;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.widget.TextView;
 
+import com.example.ed.edscannerapp.entities.InfoResponse;
+import com.example.ed.edscannerapp.entities.User;
 import com.example.ed.edscannerapp.entities.VerificationResponse;
 import com.example.ed.edscannerapp.server.BL;
 
@@ -42,6 +45,7 @@ public class AccountManager {
     private String password = null;
     private String salt = null;
     private String sig = null;
+    private User user = null;
 
     private Storage storage;
 
@@ -124,8 +128,48 @@ public class AccountManager {
         });
     }
 
+    public interface UserCallback {
+        void success(User user);
+    }
+
+    public void getUser(final UserCallback callback){
+
+        if(this.user != null) {
+            callback.success(user);
+        }
+
+        BL.info(this.login, this.salt, this.sig).enqueue(new Callback<InfoResponse>() {
+            @Override
+            public void onResponse(Call<InfoResponse> call, Response<InfoResponse> response) {
+                if (response.isSuccessful()) {
+                    InfoResponse info = response.body();
+
+                    if(info.isSuccessful()){
+                        saveUser(info.getUser());
+                        callback.success(info.getUser());
+                    }
+                    else {
+                        callback.success(null);
+                    }
+
+                } else {
+                    callback.success(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<InfoResponse> call, Throwable t) {
+                callback.success(null);
+            }
+        });
+    }
+
     public void logout(){
         saveData(null, null, null, null);
+    }
+
+    private void saveUser(User user){
+        this.user = user;
     }
 
     private void saveData(String login, String password, String salt, String sig){
