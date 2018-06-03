@@ -7,10 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 
-import android.support.v4.view.ViewPager;
+import com.example.ed.edscannerapp.CustomViewPager;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -38,8 +39,9 @@ import java.util.Timer;
 public class ProductActivity extends AppCompatActivity {
 
     static final int PRODUCTS_ACTIVITY_CODE = 1;
+    static final int CHECK_ACTIVITY_CODE = 2;
 
-    private ViewPager viewPager;
+    private CustomViewPager viewPager;
     private ProductsPagerAdapter pagerAdapter;
 
     private Manager manager = Manager.getInstance();
@@ -72,7 +74,7 @@ public class ProductActivity extends AppCompatActivity {
     }
 
     private void init(){
-        viewPager = (ViewPager) findViewById(R.id.activity_product_viewpager);
+        viewPager = (CustomViewPager) findViewById(R.id.activity_product_viewpager);
         pagerAdapter = new ProductsPagerAdapter(getSupportFragmentManager());
 
         pagerAdapter.setProducts(manager.getSavedProducts());
@@ -81,12 +83,7 @@ public class ProductActivity extends AppCompatActivity {
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
         soundID = soundPool.load(this, R.raw.scan,1);
 
-        barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
-            @Override
-            public void success(String barcode) {
-                checkProduct(false, barcode, false);
-            }
-        });
+        this.initScanner();
 
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
             @Override
@@ -99,7 +96,7 @@ public class ProductActivity extends AppCompatActivity {
         TextView orderIdView = (TextView) findViewById(R.id.product_order_id);
         orderIdView.setText("№" + manager.getActiveOrderId());
 
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPager.addOnPageChangeListener(new CustomViewPager.OnPageChangeListener() {
             public void onPageScrollStateChanged(int state) {}
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
 
@@ -111,6 +108,20 @@ public class ProductActivity extends AppCompatActivity {
         });
 
         updateData();
+    }
+
+    private void initScanner() {
+        barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
+            @Override
+            public void success(String barcode) {
+                checkProduct(false, barcode, false);
+            }
+        });
+    }
+
+    private void destroyScanner() {
+        barcodeScanner.destroy();
+        barcodeScanner = null;
     }
 
     private void updateButtons(){
@@ -140,7 +151,8 @@ public class ProductActivity extends AppCompatActivity {
     }
 
     public void checkProduct(View w){
-        startActivity(new Intent(this, CheckActivity.class));
+        this.destroyScanner();
+        startActivityForResult(new Intent(this, CheckActivity.class), CHECK_ACTIVITY_CODE);
     }
 
     public void completeOrder(View w) {
@@ -235,7 +247,7 @@ public class ProductActivity extends AppCompatActivity {
                 successBarcode(currentProduct.getId(), false);
             }
             else {
-                ((Vibrator)getSystemService(ProductActivity.VIBRATOR_SERVICE)).vibrate(300);
+                ((Vibrator)getSystemService(Context.VIBRATOR_SERVICE)).vibrate(300);
 
                 //TODO Надо в колбеке
                 if(manualInputBarcode){
@@ -265,6 +277,7 @@ public class ProductActivity extends AppCompatActivity {
 
     public void successBarcode(String productId, boolean manual){
         confirmingProcess = true;
+        viewPager.setPagingEnabled(false);
         manager.confirmProduct(productId, manual, new Manager.ConfirmProductCallback() {
             @Override
             public void success(final Manager.BeforeProductsModifyCallback callback) {
@@ -276,6 +289,7 @@ public class ProductActivity extends AppCompatActivity {
                     public void success(){
                         callback.success();
                         updateData();
+                        viewPager.setPagingEnabled(true);
                         confirmingProcess = false;
                     };
 
@@ -288,6 +302,7 @@ public class ProductActivity extends AppCompatActivity {
             @Override
             public void error(String message) {
                 Helper.showErrorMessage(ProductActivity.this, message);
+                viewPager.setPagingEnabled(true);
                 confirmingProcess = false;
             }
         });
@@ -298,7 +313,7 @@ public class ProductActivity extends AppCompatActivity {
         int unScannedProducts = ProductsHelper.getUnscannedCount(manager.getSavedProducts());
         boolean complete = unScannedProducts == 0;
 
-        ((ViewPager) findViewById(R.id.activity_product_viewpager)).setVisibility(complete ? ViewPager.GONE : ViewPager.VISIBLE);
+        ((CustomViewPager) findViewById(R.id.activity_product_viewpager)).setVisibility(complete ? CustomViewPager.GONE : CustomViewPager.VISIBLE);
         ((LinearLayout) findViewById(R.id.product_counters)).setVisibility(complete ? LinearLayout.GONE : LinearLayout.VISIBLE);
 
         if(!complete){
@@ -370,6 +385,11 @@ public class ProductActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+        if(barcodeScanner == null) {
+            this.initScanner();
+        }
+
         switch(requestCode){
             case PRODUCTS_ACTIVITY_CODE:
 
@@ -383,7 +403,6 @@ public class ProductActivity extends AppCompatActivity {
                 }
 
                 break;
-
         }
     }
 
@@ -406,7 +425,7 @@ public class ProductActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == 139) {
+        if(keyCode == 139 && barcodeScanner != null) {
             if(!confirmingProcess && hasBarcode){
                 if(event.getRepeatCount() == 0) {
                     barcodeScanner.startScan();
@@ -421,7 +440,7 @@ public class ProductActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode==139){
+        if(keyCode==139 && barcodeScanner != null){
             if(event.getRepeatCount() == 0) {
                 barcodeScanner.stopScan();
             }
@@ -434,7 +453,7 @@ public class ProductActivity extends AppCompatActivity {
 
     @Override
     public void onDestroy(){
-        barcodeScanner.destroy();
+        this.destroyScanner();
         super.onDestroy();
     }
 }

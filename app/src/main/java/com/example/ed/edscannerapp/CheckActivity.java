@@ -47,12 +47,7 @@ public class CheckActivity extends AppCompatActivity {
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
         soundID = soundPool.load(this, R.raw.scan,1);
 
-        barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
-            @Override
-            public void success(String barcode) {
-                checkProduct(barcode);
-            }
-        });
+        initScanner();
 
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
             @Override
@@ -64,7 +59,22 @@ public class CheckActivity extends AppCompatActivity {
     }
 
     public void exit(View w) {
+        destroyScanner();
         finish();
+    }
+
+    private void initScanner() {
+        barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
+            @Override
+            public void success(String barcode) {
+                checkProduct(barcode);
+            }
+        });
+    }
+
+    private void destroyScanner() {
+        barcodeScanner.destroy();
+        barcodeScanner = null;
     }
 
     public void barcodeButtonHandler(View w){
@@ -169,7 +179,7 @@ public class CheckActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == 139) {
+        if(keyCode == 139 && barcodeScanner != null) {
             if(!this.isFetch && event.getRepeatCount() == 0) {
                 barcodeScanner.startScan();
             }
@@ -182,7 +192,7 @@ public class CheckActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode==139){
+        if(keyCode==139 && barcodeScanner != null){
             if(event.getRepeatCount() == 0) {
                 barcodeScanner.stopScan();
             }
@@ -191,11 +201,5 @@ public class CheckActivity extends AppCompatActivity {
         else {
             return super.onKeyUp(keyCode, event);
         }
-    }
-
-    @Override
-    public void onDestroy(){
-        barcodeScanner.destroy();
-        super.onDestroy();
     }
 }
