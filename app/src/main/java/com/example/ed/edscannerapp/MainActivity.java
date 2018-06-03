@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.example.ed.edscannerapp.entities.User;
@@ -42,10 +43,24 @@ public class MainActivity extends AppCompatActivity {
         accountManager.getUser(new AccountManager.UserCallback() {
             @Override
             public void success(User user) {
-                setContentView(R.layout.activity_main);
+                if(user != null) {
+                    setContentView(R.layout.activity_main);
 
-                TextView userNameView = (TextView) findViewById(R.id.main_user_name);
-                userNameView.setText(user.getFullName());
+                    TextView userNameView = (TextView) findViewById(R.id.main_user_name);
+                    userNameView.setText(user.getFullName());
+                } else {
+                    AlertDialog.Builder builder = Helper.getDialogBuilder(MainActivity.this,
+                            "Отсутствует соединение с интернетом", "", null);
+
+                    builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            MainActivity.this.initView();
+                        }
+                    });
+
+                    builder.create().show();
+                }
             }
         });
 

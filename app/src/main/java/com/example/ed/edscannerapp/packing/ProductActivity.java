@@ -55,7 +55,10 @@ public class ProductActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.initView();
+    }
 
+    private void initView(){
         manager.getProducts(new Manager.GetProductsCallback(){
 
             @Override
@@ -66,8 +69,17 @@ public class ProductActivity extends AppCompatActivity {
 
             @Override
             public void error(String message){
-                //TODO
-                finish();
+                AlertDialog.Builder builder = Helper.getDialogBuilder(ProductActivity.this,
+                        "Отсутствует соединение с интернетом", "", null);
+
+                builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        ProductActivity.this.initView();
+                    }
+                });
+
+                builder.create().show();
             };
 
         });

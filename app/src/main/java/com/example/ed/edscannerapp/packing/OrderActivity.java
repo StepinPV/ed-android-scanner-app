@@ -1,6 +1,5 @@
 package com.example.ed.edscannerapp.packing;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,8 +28,11 @@ public class OrderActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         manager = Manager.getInstance();
+        this.initView();
+    }
+
+    private void initView(){
         manager.getOrder("", new Manager.GetOrderCallback(){
             @Override
             public void success(Order order){
@@ -39,13 +41,22 @@ public class OrderActivity extends AppCompatActivity {
             };
             @Override
             public void error(String message){
-                //TODO
-                finish();
+                AlertDialog.Builder builder = Helper.getDialogBuilder(OrderActivity.this,
+                        "Отсутствует соединение с интернетом", "", null);
+
+                builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        OrderActivity.this.initView();
+                    }
+                });
+
+                builder.create().show();
             };
         });
     }
 
-    private void updateOrderById(String orderId){
+    private void updateOrderById(final String orderId){
         manager.getOrder(orderId, new Manager.GetOrderCallback(){
             @Override
             public void success(Order order){
@@ -53,7 +64,17 @@ public class OrderActivity extends AppCompatActivity {
             };
             @Override
             public void error(String message){
-                Helper.showErrorMessage(OrderActivity.this, message);
+                AlertDialog.Builder builder = Helper.getDialogBuilder(OrderActivity.this,
+                        message, "", null);
+
+                builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        OrderActivity.this.updateOrderById(orderId);
+                    }
+                });
+
+                builder.create().show();
             };
         });
     }

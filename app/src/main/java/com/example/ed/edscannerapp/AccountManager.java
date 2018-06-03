@@ -90,7 +90,7 @@ public class AccountManager {
 
     interface LoginCallback {
         void success();
-        void error();
+        void error(String message);
     }
 
     public void login(final String login, final String password, final LoginCallback callback){
@@ -113,17 +113,17 @@ public class AccountManager {
                         callback.success();
                     }
                     else {
-                        callback.error();
+                        callback.error(verification.getMessage());
                     }
 
                 } else {
-                    //TODO
+                    callback.error("Отсутствует соединение с интернетом!");
                 }
             }
 
             @Override
             public void onFailure(Call<VerificationResponse> call, Throwable t) {
-                //TODO
+                callback.error("Отсутствует соединение с интернетом!");
             }
         });
     }

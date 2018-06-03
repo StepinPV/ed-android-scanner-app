@@ -43,8 +43,8 @@ public class LoginActivity extends AppCompatActivity {
             };
 
             @Override
-            public void error(){
-                showError();
+            public void error(String message){
+                showError(message);
             };
 
         });
@@ -68,10 +68,9 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
-    private void showError(){
+    private void showError(String message){
         AlertDialog.Builder builder = Helper.getDialogBuilder(this,
-                "Не правильный логин или пароль!",
-                "", null);
+                message, "", null);
 
         builder.setPositiveButton("ОК", null);
 
