@@ -26,6 +26,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         AccountManager.initInstance(this);
+        checkLogined();
+    }
+
+    private void checkLogined(){
         AccountManager accountManager = AccountManager.getInstance();
 
         if(accountManager.isLogined()){
@@ -34,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
         else {
             this.openLoginActivity();
         }
-
     }
 
     private void initView(){
@@ -115,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         switch(requestCode){
 
             case LOGIN_ACTIVITY_CODE:
-                this.initView();
+                checkLogined();
                 break;
         }
     }

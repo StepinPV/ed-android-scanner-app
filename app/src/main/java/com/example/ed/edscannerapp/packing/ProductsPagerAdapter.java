@@ -51,6 +51,6 @@ public class ProductsPagerAdapter extends FragmentPagerAdapter {
      */
     public void notifyChangeInPosition(int n) {
         // shift the ID returned by getItemId outside the range of all previous fragments
-        baseId += getCount() + n;
+        baseId += products.getList().size() + n;
     }
 }
