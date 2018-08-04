@@ -3,14 +3,19 @@ package com.example.ed.edscannerapp.packing;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ed.edscannerapp.AccountManager;
+import com.example.ed.edscannerapp.BarcodeScanner;
 import com.example.ed.edscannerapp.Helper;
 import com.example.ed.edscannerapp.R;
 import com.example.ed.edscannerapp.entities.Order;
@@ -22,6 +27,9 @@ public class OrderActivity extends AppCompatActivity {
     static public final int ORDERS_ACTIVITY_CODE = 2;
     static public final int PAUSE_ACTIVITY_CODE = 3;
     private String selectedOrderId;
+    private BarcodeScanner barcodeScanner = null;
+    private SoundPool soundPool;
+    private int soundID;
 
     Manager manager;
 
@@ -30,6 +38,9 @@ public class OrderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         manager = Manager.getInstance();
         this.initView();
+
+        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
+        soundID = soundPool.load(this, R.raw.scan,1);
     }
 
     private void initView(){
@@ -84,6 +95,24 @@ public class OrderActivity extends AppCompatActivity {
 
         if(order != null){
             selectedOrderId = order.getId();
+            this.updateScanner(order);
+        }
+    }
+
+    private void updateScanner(Order order) {
+        if(order != null) {
+            switch(order.getStatus()){
+                case Order.STATUS_UNSTARTED:
+                case Order.STATUS_PAUSED:
+                case Order.STATUS_PARTIAL:
+                    this.initScanner();
+                    break;
+                case Order.STATUS_ACTIVE:
+                    this.destroyScanner();
+                    break;
+            }
+        } else {
+            this.destroyScanner();
         }
     }
 
@@ -92,9 +121,14 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     public void startButtonHandler(View w){
+        this.startOrder();
+    }
+
+    private void startOrder() {
         manager.startOrder(selectedOrderId, new Manager.GetOrderCallback(){
             @Override
             public void success(Order order){
+                OrderActivity.this.destroyScanner();
                 OrderActivity.this.openScanningActivity();
             };
             @Override
@@ -291,6 +325,57 @@ public class OrderActivity extends AppCompatActivity {
     public void onDestroy(){
         Manager.destroyInstance();
         super.onDestroy();
+    }
+
+    private void initScanner() {
+        if(barcodeScanner == null) {
+            barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
+                @Override
+                public void success(String barcode) {
+                    if(barcode.equals(OrderActivity.this.selectedOrderId)) {
+                        soundPool.play(soundID, 1, 1,1,0, 1f);
+                        OrderActivity.this.startOrder();
+                    } else {
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                "Неверный ID заказа!", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                }
+            });
+        }
+    }
+
+    private void destroyScanner() {
+        if(barcodeScanner != null) {
+            barcodeScanner.destroy();
+            barcodeScanner = null;
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == 139 && barcodeScanner != null) {
+            if(event.getRepeatCount() == 0) {
+                barcodeScanner.startScan();
+            }
+            return true;
+        }
+        else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(keyCode==139 && barcodeScanner != null){
+            if(event.getRepeatCount() == 0) {
+                barcodeScanner.stopScan();
+            }
+            return true;
+        }
+        else {
+            return super.onKeyUp(keyCode, event);
+        }
     }
 
 }

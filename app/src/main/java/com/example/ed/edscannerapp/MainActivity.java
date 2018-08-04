@@ -10,12 +10,12 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.example.ed.edscannerapp.entities.User;
 
 import com.example.ed.edscannerapp.packing.OrderActivity;
+import com.example.ed.edscannerapp.ExceptionHandler;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
         AccountManager.initInstance(this);
         checkLogined();
+
+        Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.inContext(MainActivity.this));
     }
 
     private void checkLogined(){
