@@ -250,6 +250,10 @@ public class ProductActivity extends AppCompatActivity {
 
         Product currentProduct = ProductsHelper.getUnscannedByIndex(manager.getSavedProducts(), currentPagePosition);
 
+        if(currentProduct == null) {
+            return;
+        }
+
         if(manual){
             successBarcode(currentProduct.getId(), true);
         }
