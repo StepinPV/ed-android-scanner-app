@@ -202,4 +202,10 @@ public class CheckActivity extends AppCompatActivity {
             return super.onKeyUp(keyCode, event);
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        this.destroyScanner();
+        super.onBackPressed();
+    }
 }
