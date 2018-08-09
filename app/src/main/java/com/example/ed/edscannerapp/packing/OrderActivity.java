@@ -117,6 +117,7 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     public void exitButtonHandler(View w){
+        this.destroyScanner();
         finish();
     }
 
@@ -128,7 +129,6 @@ public class OrderActivity extends AppCompatActivity {
         manager.startOrder(selectedOrderId, new Manager.GetOrderCallback(){
             @Override
             public void success(Order order){
-                OrderActivity.this.destroyScanner();
                 OrderActivity.this.openScanningActivity();
             };
             @Override
@@ -202,6 +202,7 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     public void ordersButtonHandler(View w){
+        this.destroyScanner();
         startActivityForResult(new Intent(this, OrdersActivity.class), ORDERS_ACTIVITY_CODE);
     }
 
@@ -210,10 +211,12 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     private void openScanningActivity(){
+        this.destroyScanner();
         startActivityForResult(new Intent(this, ProductActivity.class), PRODUCT_ACTIVITY_CODE);
     }
 
     private void openPauseActivity(String orderId){
+        this.destroyScanner();
         Intent intent = new Intent(this, PauseActivity.class);
         intent.putExtra("orderId", orderId);
         startActivityForResult(intent, PAUSE_ACTIVITY_CODE);
@@ -324,6 +327,7 @@ public class OrderActivity extends AppCompatActivity {
     @Override
     public void onDestroy(){
         Manager.destroyInstance();
+        this.destroyScanner();
         super.onDestroy();
     }
 
@@ -377,5 +381,4 @@ public class OrderActivity extends AppCompatActivity {
             return super.onKeyUp(keyCode, event);
         }
     }
-
 }

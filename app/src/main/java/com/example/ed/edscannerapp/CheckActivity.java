@@ -73,8 +73,10 @@ public class CheckActivity extends AppCompatActivity {
     }
 
     private void destroyScanner() {
-        barcodeScanner.destroy();
-        barcodeScanner = null;
+        if(barcodeScanner != null) {
+            barcodeScanner.destroy();
+            barcodeScanner = null;
+        }
     }
 
     public void barcodeButtonHandler(View w){
@@ -207,5 +209,11 @@ public class CheckActivity extends AppCompatActivity {
     public void onBackPressed() {
         this.destroyScanner();
         super.onBackPressed();
+    }
+
+    @Override
+    public void onDestroy(){
+        this.destroyScanner();
+        super.onDestroy();
     }
 }
