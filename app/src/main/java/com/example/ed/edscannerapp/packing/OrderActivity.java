@@ -27,6 +27,7 @@ public class OrderActivity extends AppCompatActivity {
     static public final int ORDERS_ACTIVITY_CODE = 2;
     static public final int PAUSE_ACTIVITY_CODE = 3;
     private String selectedOrderId;
+    private String selectOrderStatus;
     private BarcodeScanner barcodeScanner = null;
     private SoundPool soundPool;
     private int soundID;
@@ -78,12 +79,7 @@ public class OrderActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = Helper.getDialogBuilder(OrderActivity.this,
                         message, "", null);
 
-                builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        OrderActivity.this.updateOrderById(orderId);
-                    }
-                });
+                builder.setPositiveButton("ОК", null);
 
                 builder.create().show();
             };
@@ -95,6 +91,7 @@ public class OrderActivity extends AppCompatActivity {
 
         if(order != null){
             selectedOrderId = order.getId();
+            selectOrderStatus = order.getStatus();
             this.updateScanner(order);
         }
     }
@@ -202,8 +199,7 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     public void ordersButtonHandler(View w){
-        this.destroyScanner();
-        startActivityForResult(new Intent(this, OrdersActivity.class), ORDERS_ACTIVITY_CODE);
+        this.openOrdersActivity();
     }
 
     public void scanningButtonHandler(View w){
@@ -213,6 +209,11 @@ public class OrderActivity extends AppCompatActivity {
     private void openScanningActivity(){
         this.destroyScanner();
         startActivityForResult(new Intent(this, ProductActivity.class), PRODUCT_ACTIVITY_CODE);
+    }
+
+    private void openOrdersActivity(){
+        this.destroyScanner();
+        startActivityForResult(new Intent(this, OrdersActivity.class), ORDERS_ACTIVITY_CODE);
     }
 
     private void openPauseActivity(String orderId){
@@ -340,9 +341,7 @@ public class OrderActivity extends AppCompatActivity {
                         soundPool.play(soundID, 1, 1,1,0, 1f);
                         OrderActivity.this.startOrder();
                     } else {
-                        Toast toast = Toast.makeText(getApplicationContext(),
-                                "Неверный ID заказа!", Toast.LENGTH_SHORT);
-                        toast.show();
+                        OrderActivity.this.updateOrderById(barcode);
                     }
                 }
             });
@@ -358,27 +357,29 @@ public class OrderActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == 139 && barcodeScanner != null) {
-            if(event.getRepeatCount() == 0) {
+        if(keyCode == 139) {
+            if(barcodeScanner != null && event.getRepeatCount() == 0) {
                 barcodeScanner.startScan();
             }
             return true;
         }
-        else {
-            return super.onKeyDown(keyCode, event);
+        else if(keyCode == 82) {
+            if(selectOrderStatus != Order.STATUS_ACTIVE){
+                this.openOrdersActivity();
+            }
+            return true;
         }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode==139 && barcodeScanner != null){
-            if(event.getRepeatCount() == 0) {
+        if(keyCode == 139){
+            if(barcodeScanner != null && event.getRepeatCount() == 0) {
                 barcodeScanner.stopScan();
             }
             return true;
         }
-        else {
-            return super.onKeyUp(keyCode, event);
-        }
+        return super.onKeyUp(keyCode, event);
     }
 }

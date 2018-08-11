@@ -149,6 +149,10 @@ public class ProductActivity extends AppCompatActivity {
     }
 
     public void openProductsActivity(View w){
+        this.openProductsActivity();
+    }
+
+    private void openProductsActivity(){
         Intent intent = new Intent(this, ProductsActivity.class);
         startActivityForResult(intent, PRODUCTS_ACTIVITY_CODE);
     }
@@ -441,12 +445,16 @@ public class ProductActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == 139 && barcodeScanner != null) {
-            if(!confirmingProcess && hasBarcode){
+        if(keyCode == 139) {
+            if(barcodeScanner != null && !confirmingProcess && hasBarcode){
                 if(event.getRepeatCount() == 0) {
                     barcodeScanner.startScan();
                 }
             }
+            return true;
+        }
+        else if(keyCode == 82) {
+            this.openProductsActivity();
             return true;
         }
         else {
@@ -456,15 +464,13 @@ public class ProductActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode==139 && barcodeScanner != null){
-            if(event.getRepeatCount() == 0) {
+        if(keyCode==139){
+            if(barcodeScanner != null && event.getRepeatCount() == 0) {
                 barcodeScanner.stopScan();
             }
             return true;
         }
-        else {
-            return super.onKeyUp(keyCode, event);
-        }
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override

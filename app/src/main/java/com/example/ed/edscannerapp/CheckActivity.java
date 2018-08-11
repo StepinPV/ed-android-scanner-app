@@ -181,28 +181,24 @@ public class CheckActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == 139 && barcodeScanner != null) {
-            if(!this.isFetch && event.getRepeatCount() == 0) {
+        if(keyCode == 139) {
+            if(barcodeScanner != null && !this.isFetch && event.getRepeatCount() == 0) {
                 barcodeScanner.startScan();
             }
             return true;
         }
-        else {
-            return super.onKeyDown(keyCode, event);
-        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode==139 && barcodeScanner != null){
-            if(event.getRepeatCount() == 0) {
+        if(keyCode==139){
+            if(barcodeScanner != null && event.getRepeatCount() == 0) {
                 barcodeScanner.stopScan();
             }
             return true;
         }
-        else {
-            return super.onKeyUp(keyCode, event);
-        }
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override

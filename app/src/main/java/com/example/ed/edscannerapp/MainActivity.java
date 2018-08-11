@@ -9,13 +9,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
 import com.example.ed.edscannerapp.entities.User;
 
 import com.example.ed.edscannerapp.packing.OrderActivity;
-import com.example.ed.edscannerapp.ExceptionHandler;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -123,5 +123,21 @@ public class MainActivity extends AppCompatActivity {
                 checkLogined();
                 break;
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == 139) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(keyCode == 139){
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 }

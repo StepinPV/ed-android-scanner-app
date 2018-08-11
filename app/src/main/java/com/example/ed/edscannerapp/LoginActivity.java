@@ -1,13 +1,11 @@
 package com.example.ed.edscannerapp;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
-
-import com.example.ed.edscannerapp.entities.Order;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -75,5 +73,21 @@ public class LoginActivity extends AppCompatActivity {
         builder.setPositiveButton("ОК", null);
 
         builder.create().show();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == 139) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(keyCode == 139){
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 }
