@@ -39,7 +39,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="16dp"
                 android:textSize="16dp"
-                android:text="V 0.18" />
+                android:text="V 0.19" />
 
         </LinearLayout>
 
