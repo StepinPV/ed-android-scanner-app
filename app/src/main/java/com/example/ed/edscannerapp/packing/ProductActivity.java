@@ -22,7 +22,6 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.ed.edscannerapp.AccountManager;
 import com.example.ed.edscannerapp.BarcodeScanner;
@@ -123,17 +122,22 @@ public class ProductActivity extends AppCompatActivity {
     }
 
     private void initScanner() {
-        barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
-            @Override
-            public void success(String barcode) {
-                checkProduct(false, barcode, false);
-            }
-        });
+        if(barcodeScanner == null){
+            barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
+                @Override
+                public void success(String barcode) {
+                    checkProduct(false, barcode, false);
+                }
+            });
+        }
+
     }
 
     private void destroyScanner() {
-        barcodeScanner.destroy();
-        barcodeScanner = null;
+        if(barcodeScanner != null) {
+            barcodeScanner.destroy();
+            barcodeScanner = null;
+        }
     }
 
     private void updateButtons(){
@@ -346,7 +350,6 @@ public class ProductActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.product_complete_message)).setVisibility(LinearLayout.GONE);
             ((TextView) findViewById(R.id.product_complete_comment)).setVisibility(LinearLayout.GONE);
             ((Button) findViewById(R.id.product_complete_button)).setVisibility(LinearLayout.GONE);
-
         }
         else {
             manager.getOrder("", new Manager.GetOrderCallback(){
@@ -383,6 +386,16 @@ public class ProductActivity extends AppCompatActivity {
                     Helper.showErrorMessage(ProductActivity.this, message);
                 };
             });
+        }
+
+        if(complete) {
+            if(this.barcodeScanner != null) {
+                this.destroyScanner();
+            }
+        } else {
+            if(this.barcodeScanner == null) {
+                this.initScanner();
+            }
         }
 
     }
