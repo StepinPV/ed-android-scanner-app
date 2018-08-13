@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 
@@ -170,7 +169,11 @@ public class ProductActivity extends AppCompatActivity {
         finish();
     }
 
-    public void checkProduct(View w){
+    public void openCheckActivity(View w){
+        this.openCheckActivity();
+    }
+
+    private void openCheckActivity() {
         this.destroyScanner();
         startActivityForResult(new Intent(this, CheckActivity.class), CHECK_ACTIVITY_CODE);
     }
@@ -271,7 +274,10 @@ public class ProductActivity extends AppCompatActivity {
                 successBarcode(currentProduct.getId(), false);
             }
             else {
-                ((Vibrator)getSystemService(Context.VIBRATOR_SERVICE)).vibrate(300);
+                Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                if (vibrator.hasVibrator()) {
+                    vibrator.vibrate(300);
+                }
 
                 //TODO Надо в колбеке
                 if(manualInputBarcode){
@@ -334,7 +340,13 @@ public class ProductActivity extends AppCompatActivity {
 
     public void updateData(){
 
-        int unScannedProducts = ProductsHelper.getUnscannedCount(manager.getSavedProducts());
+        Products products = manager.getSavedProducts();
+
+        if(products == null) {
+            return;
+        }
+
+        int unScannedProducts = ProductsHelper.getUnscannedCount(products);
         boolean complete = unScannedProducts == 0;
 
         ((CustomViewPager) findViewById(R.id.activity_product_viewpager)).setVisibility(complete ? CustomViewPager.GONE : CustomViewPager.VISIBLE);
@@ -419,14 +431,10 @@ public class ProductActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
-        if(barcodeScanner == null) {
-            this.initScanner();
-        }
+        updateData();
 
         switch(requestCode){
             case PRODUCTS_ACTIVITY_CODE:
-
-                updateData();
 
                 if(intent != null){
                     String productId = intent.getStringExtra("product_id");
@@ -491,4 +499,16 @@ public class ProductActivity extends AppCompatActivity {
         this.destroyScanner();
         super.onDestroy();
     }
+
+    /*@Override
+    public void onPause() {
+        super.onPause();
+        this.destroyScanner();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.updateData();
+    }*/
 }

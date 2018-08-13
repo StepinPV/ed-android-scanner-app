@@ -41,7 +41,7 @@
                 android:layout_marginLeft="16dp"
                 android:textSize="16dp"
                 android:text="Проверить"
-                android:onClick="checkProduct"/>
+                android:onClick="openCheckActivity"/>
 
             <TextView
                 android:id="@+id/product_order_id"

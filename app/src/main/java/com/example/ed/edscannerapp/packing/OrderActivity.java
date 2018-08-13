@@ -92,8 +92,8 @@ public class OrderActivity extends AppCompatActivity {
         if(order != null){
             selectedOrderId = order.getId();
             selectOrderStatus = order.getStatus();
-            this.updateScanner(order);
         }
+        this.updateScanner(order);
     }
 
     private void updateScanner(Order order) {
@@ -109,7 +109,7 @@ public class OrderActivity extends AppCompatActivity {
                     break;
             }
         } else {
-            this.destroyScanner();
+            this.initScanner();
         }
     }
 
@@ -339,9 +339,11 @@ public class OrderActivity extends AppCompatActivity {
             barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
                 @Override
                 public void success(String barcode) {
+                    soundPool.play(soundID, 1, 1,1,0, 1f);
                     if(barcode.equals(OrderActivity.this.selectedOrderId)) {
-                        soundPool.play(soundID, 1, 1,1,0, 1f);
-                        OrderActivity.this.startOrder();
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                "Данный заказ уже выбран!", Toast.LENGTH_SHORT);
+                        toast.show();
                     } else {
                         OrderActivity.this.updateOrderById(barcode);
                     }

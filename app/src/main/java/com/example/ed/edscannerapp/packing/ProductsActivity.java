@@ -23,13 +23,9 @@ import android.widget.TextView;
 import com.example.ed.edscannerapp.AccountManager;
 import com.example.ed.edscannerapp.Helper;
 import com.example.ed.edscannerapp.R;
-import com.example.ed.edscannerapp.entities.Order;
 import com.example.ed.edscannerapp.entities.Product;
 import com.example.ed.edscannerapp.entities.Products;
 import com.example.ed.edscannerapp.entities.User;
-
-import java.util.List;
-import java.util.Timer;
 
 public class ProductsActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
