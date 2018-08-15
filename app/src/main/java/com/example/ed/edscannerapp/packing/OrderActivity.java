@@ -54,7 +54,7 @@ public class OrderActivity extends AppCompatActivity {
             @Override
             public void error(String message){
                 AlertDialog.Builder builder = Helper.getDialogBuilder(OrderActivity.this,
-                        "Отсутствует соединение с интернетом", "", null);
+                        "Отсутствует соединение с сервером", "", null);
 
                 builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
                     @Override

@@ -117,13 +117,13 @@ public class AccountManager {
                     }
 
                 } else {
-                    callback.error("Отсутствует соединение с интернетом!");
+                    callback.error("Отсутствует соединение с сервером!");
                 }
             }
 
             @Override
             public void onFailure(Call<VerificationResponse> call, Throwable t) {
-                callback.error("Отсутствует соединение с интернетом!");
+                callback.error("Отсутствует соединение с сервером!");
             }
         });
     }

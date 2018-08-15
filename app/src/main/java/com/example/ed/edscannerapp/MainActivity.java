@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                     userNameView.setText(user.getFullName());
                 } else {
                     AlertDialog.Builder builder = Helper.getDialogBuilder(MainActivity.this,
-                            "Отсутствует соединение с интернетом", "", null);
+                            "Отсутствует соединение с сервером", "", null);
 
                     builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
                         @Override
