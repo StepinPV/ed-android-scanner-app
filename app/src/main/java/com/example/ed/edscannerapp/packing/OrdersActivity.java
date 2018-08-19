@@ -52,8 +52,10 @@ public class OrdersActivity extends AppCompatActivity implements SwipeRefreshLay
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
             @Override
             public void success(User user) {
-                TextView userNameView = (TextView) findViewById(R.id.orders_user_name);
-                userNameView.setText(user.getFullName());
+                if(user != null) {
+                    TextView userNameView = (TextView) findViewById(R.id.orders_user_name);
+                    userNameView.setText(user.getFullName());
+                }
             }
         });
 

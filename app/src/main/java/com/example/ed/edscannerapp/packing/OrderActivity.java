@@ -368,7 +368,7 @@ public class OrderActivity extends AppCompatActivity {
             return true;
         }
         else if(keyCode == 82) {
-            if(selectOrderStatus != Order.STATUS_ACTIVE){
+            if(!selectOrderStatus.equals(Order.STATUS_ACTIVE)){
                 this.openOrdersActivity();
             }
             return true;

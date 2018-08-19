@@ -43,8 +43,10 @@ public class PauseActivity extends AppCompatActivity {
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
             @Override
             public void success(User user) {
-                TextView userNameView = (TextView) findViewById(R.id.products_user_name);
-                userNameView.setText(user.getFullName());
+                if(user != null) {
+                    TextView userNameView = (TextView) findViewById(R.id.products_user_name);
+                    userNameView.setText(user.getFullName());
+                }
             }
         });
 

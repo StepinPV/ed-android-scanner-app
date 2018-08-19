@@ -98,8 +98,10 @@ public class ProductActivity extends AppCompatActivity {
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
             @Override
             public void success(User user) {
-                TextView userNameView = (TextView) findViewById(R.id.product_user_name);
-                userNameView.setText(user.getFullName());
+                if(user != null) {
+                    TextView userNameView = (TextView) findViewById(R.id.product_user_name);
+                    userNameView.setText(user.getFullName());
+                }
             }
         });
 
@@ -457,11 +459,17 @@ public class ProductActivity extends AppCompatActivity {
     }
 
     private void showSuccess(Timer timer, Helper.Deferred def){
-        getCurrentFragment().showSuccess(timer, def);
+        ProductFragment f = getCurrentFragment();
+        if(f != null) {
+            f.showSuccess(timer, def);
+        }
     }
 
     private void showError(Timer timer, Helper.Deferred def){
-        getCurrentFragment().showError(timer, def);
+        ProductFragment f = getCurrentFragment();
+        if(f != null) {
+            f.showError(timer, def);
+        }
     }
 
     @Override

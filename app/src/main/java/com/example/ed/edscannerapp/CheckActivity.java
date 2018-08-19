@@ -1,6 +1,5 @@
 package com.example.ed.edscannerapp;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.cunoraz.gifview.library.GifView;
 import com.example.ed.edscannerapp.entities.CheckResponse;
 import com.example.ed.edscannerapp.entities.Product;
 import com.example.ed.edscannerapp.entities.User;
@@ -52,8 +50,10 @@ public class CheckActivity extends AppCompatActivity {
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
             @Override
             public void success(User user) {
-                TextView userNameView = (TextView) findViewById(R.id.check_user_name);
-                userNameView.setText(user.getFullName());
+                if(user != null) {
+                    TextView userNameView = (TextView) findViewById(R.id.check_user_name);
+                    userNameView.setText(user.getFullName());
+                }
             }
         });
     }
