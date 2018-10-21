@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.example.ed.edscannerapp.CustomViewPager;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -87,7 +88,12 @@ public class ProductActivity extends AppCompatActivity {
         viewPager = (CustomViewPager) findViewById(R.id.activity_product_viewpager);
         pagerAdapter = new ProductsPagerAdapter(getSupportFragmentManager());
 
-        pagerAdapter.setProducts(manager.getSavedProducts());
+        Products products = manager.getSavedProducts();
+
+        if (products != null) {
+            pagerAdapter.setProducts(manager.getSavedProducts());
+        }
+
         viewPager.setAdapter(pagerAdapter);
 
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
@@ -381,6 +387,7 @@ public class ProductActivity extends AppCompatActivity {
                     String comment = order.getComment();
                     if(comment != null && !comment.equals("")){
                         commentView.setText(comment);
+                        commentView.setMovementMethod(new ScrollingMovementMethod());
                         commentView.setVisibility(TextView.VISIBLE);
                         commentViewTitle.setVisibility(TextView.VISIBLE);
                         checkbox.setVisibility(CheckBox.VISIBLE);

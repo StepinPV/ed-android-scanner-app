@@ -76,12 +76,14 @@ public class OrderActivity extends AppCompatActivity {
             };
             @Override
             public void error(String message){
-                AlertDialog.Builder builder = Helper.getDialogBuilder(OrderActivity.this,
-                        message, "", null);
+                if(!OrderActivity.this.isFinishing()) {
+                    AlertDialog.Builder builder = Helper.getDialogBuilder(OrderActivity.this,
+                            message, "", null);
 
-                builder.setPositiveButton("ОК", null);
+                    builder.setPositiveButton("ОК", null);
 
-                builder.create().show();
+                    builder.create().show();
+                }
             };
         });
     }

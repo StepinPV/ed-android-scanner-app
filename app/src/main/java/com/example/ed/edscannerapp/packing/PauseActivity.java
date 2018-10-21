@@ -1,6 +1,7 @@
 package com.example.ed.edscannerapp.packing;
 
 import android.content.Context;
+import android.icu.text.DateFormat;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
@@ -30,6 +31,8 @@ public class PauseActivity extends AppCompatActivity {
 
     Manager manager = Manager.getInstance();
     ProductsListAdapter adapter;
+    Boolean confirming = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,17 +58,23 @@ public class PauseActivity extends AppCompatActivity {
     }
 
     public void exit(View w){
+        if(confirming) {
+            return;
+        }
         finish();
     }
 
     public void confirm(View w) {
+        confirming = true;
         manager.pauseOrder(new Manager.GetOrderCallback(){
             @Override
             public void success(Order order){
+                confirming = false;
                 finish();
             };
             @Override
             public void error(String message){
+                confirming = false;
                 Helper.showErrorMessage(PauseActivity.this, message);
             };
         });

@@ -27,7 +27,12 @@ public class ProductsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return ProductsHelper.getUnscannedCount(products);
+        if (products != null) {
+            return ProductsHelper.getUnscannedCount(products);
+        }
+        else {
+            return 0;
+        }
     }
 
     //this is called when notifyDataSetChanged() is called
