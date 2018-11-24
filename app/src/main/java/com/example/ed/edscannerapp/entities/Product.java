@@ -15,6 +15,12 @@ public class Product {
     @SerializedName("barcode")
     private String barcode;
 
+    @SerializedName("barcode_2")
+    private String barcode2;
+
+    @SerializedName("barcode_3")
+    private String barcode3;
+
     @SerializedName("sku")
     private String sku;
 
@@ -61,15 +67,23 @@ public class Product {
     }
 
     public boolean checkBarcode(String code){
-        return barcode != null && !barcode.equals("") && barcode.equals(code) || sku != null && !sku.equals("") && sku.equals(code);
+        return
+                barcode != null && !barcode.equals("") && barcode.equals(code) ||
+                        barcode2 != null && !barcode2.equals("") && barcode2.equals(code) ||
+                        barcode3 != null && !barcode3.equals("") && barcode3.equals(code) ||
+                sku != null && !sku.equals("") && sku.equals(code);
     }
 
     public boolean hasBarcode(){
-        return barcode != null && !barcode.equals("") || sku != null && !sku.equals("");
+        return
+                barcode != null && !barcode.equals("") ||
+                        barcode2 != null && !barcode2.equals("") ||
+                        barcode3 != null && !barcode3.equals("") ||
+                sku != null && !sku.equals("");
     }
 
     public String getName(){
-        return name.replaceAll("&quot;", "\"");
+        return name != null ? name.replaceAll("&quot;", "\"") : "";
     }
 
     public String getSection(){

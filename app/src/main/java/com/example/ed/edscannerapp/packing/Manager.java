@@ -37,7 +37,7 @@ public class Manager {
     }
 
     public interface GetOrderCallback {
-        void success(Order order);
+        void success(Order order, String message);
         void error(String message);
     }
 
@@ -77,21 +77,21 @@ public class Manager {
                     if(orderResponse.isSuccessful()){
                         Order order = response.body().getOrder();
                         activeOrderId = (order != null && order.getStatus().equals(Order.STATUS_ACTIVE)) ? order.getId() : null;
-                        callback.success(order);
+                        callback.success(order, orderResponse.getMessage());
                     }
                     else {
                         callback.error(orderResponse.getMessage());
                     }
 
                 } else {
-                    callback.error("Ошибка");
+                    callback.error("Неизвестная ошибка");
                 }
             }
 
             @Override
             public void onFailure(Call<OrderResponse> call, Throwable t) {
                 //callback.error(t.getMessage());
-                callback.error("Отсутствует соединение с сервером!");
+                callback.error("Неизвестная ошибка!");
             }
 
         });

@@ -68,7 +68,7 @@ public class PauseActivity extends AppCompatActivity {
         confirming = true;
         manager.pauseOrder(new Manager.GetOrderCallback(){
             @Override
-            public void success(Order order){
+            public void success(Order order, String message){
                 confirming = false;
                 finish();
             };

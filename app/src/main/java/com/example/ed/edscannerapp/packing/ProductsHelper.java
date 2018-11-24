@@ -3,6 +3,8 @@ package com.example.ed.edscannerapp.packing;
 import com.example.ed.edscannerapp.entities.Product;
 import com.example.ed.edscannerapp.entities.Products;
 
+import java.util.List;
+
 public class ProductsHelper {
 
     static public Product getUnscannedByIndex(Products products, int index){
@@ -46,9 +48,13 @@ public class ProductsHelper {
     static public int getUnscannedCount(Products products){
         int count = 0;
 
-        for (Product product: products.getList()){
-            if(!product.isScanned()){
-                count++;
+        List<Product> productList = products.getList();
+
+        if (productList != null) {
+            for (Product product: products.getList()){
+                if(!product.isScanned()){
+                    count++;
+                }
             }
         }
 

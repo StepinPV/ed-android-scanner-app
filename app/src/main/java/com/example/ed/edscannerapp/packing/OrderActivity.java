@@ -47,9 +47,9 @@ public class OrderActivity extends AppCompatActivity {
     private void initView(){
         manager.getOrder("", new Manager.GetOrderCallback(){
             @Override
-            public void success(Order order){
+            public void success(Order order, String message){
                 setContentView(R.layout.activity_order);
-                updateOrder(order);
+                updateOrder(order, message);
             };
             @Override
             public void error(String message){
@@ -71,8 +71,8 @@ public class OrderActivity extends AppCompatActivity {
     private void updateOrderById(final String orderId){
         manager.getOrder(orderId, new Manager.GetOrderCallback(){
             @Override
-            public void success(Order order){
-                updateOrder(order);
+            public void success(Order order, String message){
+                updateOrder(order, message);
             };
             @Override
             public void error(String message){
@@ -88,8 +88,8 @@ public class OrderActivity extends AppCompatActivity {
         });
     }
 
-    private void updateOrder(Order order){
-        updateComponents(order);
+    private void updateOrder(Order order, String message){
+        updateComponents(order, message);
 
         if(order != null){
             selectedOrderId = order.getId();
@@ -127,7 +127,7 @@ public class OrderActivity extends AppCompatActivity {
     private void startOrder() {
         manager.startOrder(selectedOrderId, new Manager.GetOrderCallback(){
             @Override
-            public void success(Order order){
+            public void success(Order order, String message){
                 OrderActivity.this.openScanningActivity();
             };
             @Override
@@ -142,8 +142,8 @@ public class OrderActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         manager.getOrder("", new Manager.GetOrderCallback(){
                             @Override
-                            public void success(Order order){
-                                updateOrder(order);
+                            public void success(Order order, String message){
+                                updateOrder(order, message);
                             };
                             @Override
                             public void error(String message){
@@ -185,8 +185,8 @@ public class OrderActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int id) {
                 manager.cancelOrder(new Manager.GetOrderCallback(){
                     @Override
-                    public void success(Order order){
-                        updateOrder(order);
+                    public void success(Order order, String message){
+                        updateOrder(order, null);
                     };
                     @Override
                     public void error(String message){
@@ -247,7 +247,7 @@ public class OrderActivity extends AppCompatActivity {
         }
     }
 
-    private void updateComponents(Order order){
+    private void updateComponents(Order order, String message){
 
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
             @Override
@@ -263,7 +263,11 @@ public class OrderActivity extends AppCompatActivity {
         boolean isActive = false;
 
         ((LinearLayout) findViewById(R.id.order_client_block)).setVisibility(hasOrder ? LinearLayout.VISIBLE : LinearLayout.GONE);
-        ((LinearLayout) findViewById(R.id.order_client_no_orders_message)).setVisibility(!hasOrder ? LinearLayout.VISIBLE : LinearLayout.GONE);
+        ((LinearLayout) findViewById(R.id.order_client_no_orders_block)).setVisibility(!hasOrder ? LinearLayout.VISIBLE : LinearLayout.GONE);
+
+        if (!hasOrder) {
+            ((TextView) findViewById(R.id.order_client_no_orders_message)).setText(message != null ? message : "Поздравляем! Все заказы собраны.");
+        }
 
         if(hasOrder){
             //имя

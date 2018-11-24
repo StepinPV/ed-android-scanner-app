@@ -63,6 +63,10 @@ public class Helper {
     }
 
     static public void showMessage(Activity activity, String title, String message){
+        if (activity.isFinishing()) {
+            return;
+        }
+
         AlertDialog.Builder builder = Helper.getDialogBuilder(activity,
                 message,
                 title, null);
