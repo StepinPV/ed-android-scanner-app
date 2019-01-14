@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.example.ed.edscannerapp.SettingsActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@color/colorSecond"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/check_user_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:textColor="#fff"
+                android:layout_marginLeft="16dp"
+                android:textSize="16dp"
+                android:text="Неизвестный" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:background="#efefef"
+                android:orientation="vertical"
+                android:paddingBottom="8dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Выберете сервер"
+                    android:textSize="18dp" />
+
+                <RadioGroup
+                    android:id="@+id/server_ip_radio_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <RadioButton
+                        android:id="@+id/server_ip_type_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_weight="1"
+                        android:text="Основной (https://esh-derevenskoe.ru/)" />
+
+                    <RadioButton
+                        android:id="@+id/server_ip_type_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_weight="1"
+                        android:text="Запасной (https://backup.esh-derevenskoe.ru/)" />
+
+                    <RadioButton
+                        android:id="@+id/server_ip_type_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_weight="1"
+                        android:text="Произвольный IP" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/server_ip_additional"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:background="#efefef"
+                android:paddingBottom="8dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Введите параметры сервера"
+                    android:textSize="18dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="IP адрес"
+                    android:textSize="14dp" />
+
+                <EditText
+                    android:id="@+id/server_ip_ip_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+                </EditText>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="Порт"
+                    android:textSize="14dp" />
+
+                <EditText
+                    android:id="@+id/server_ip_port_value"
+                    android:inputType="number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+                </EditText>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_margin="4dp"
+            android:background="@color/colorSecond"
+            android:onClick="saveAndExit"
+            android:text="Сохранить и выйти" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_margin="4dp"
+            android:background="@color/colorSecond"
+            android:onClick="exit"
+            android:text="Назад" />
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

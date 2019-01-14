@@ -63,7 +63,9 @@ public class OrderActivity extends AppCompatActivity {
                     }
                 });
 
-                builder.create().show();
+                if (!OrderActivity.this.isFinishing()) {
+                    builder.create().show();
+                }
             };
         });
     }
@@ -82,7 +84,9 @@ public class OrderActivity extends AppCompatActivity {
 
                     builder.setPositiveButton("ОК", null);
 
-                    builder.create().show();
+                    if (!OrderActivity.this.isFinishing()) {
+                        builder.create().show();
+                    }
                 }
             };
         });
@@ -153,7 +157,9 @@ public class OrderActivity extends AppCompatActivity {
                     }
                 });
 
-                builder.create().show();
+                if (!OrderActivity.this.isFinishing()) {
+                    builder.create().show();
+                }
             };
         });
     }
@@ -171,7 +177,9 @@ public class OrderActivity extends AppCompatActivity {
             }
         }).setNegativeButton("Отмена", null);
 
-        builder.create().show();
+        if (!OrderActivity.this.isFinishing()) {
+            builder.create().show();
+        }
     }
 
     public void cancelButtonHandler(View w){
@@ -196,7 +204,9 @@ public class OrderActivity extends AppCompatActivity {
             }
         }).setNegativeButton("Отмена", null);
 
-        builder.create().show();
+        if (!OrderActivity.this.isFinishing()) {
+            builder.create().show();
+        }
 
     }
 

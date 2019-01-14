@@ -39,7 +39,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="16dp"
                 android:textSize="16dp"
-                android:text="V 0.27" />
+                android:text="V 0.28" />
 
         </LinearLayout>
 
@@ -85,6 +85,17 @@
             android:textColor="@android:color/background_light"
             android:textSize="24sp"
             android:onClick="checkProduct"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginBottom="2dp"
+            android:background="@color/colorFirst"
+            android:text="Настройки"
+            android:textColor="@android:color/background_light"
+            android:textSize="24sp"
+            android:onClick="openSettings"/>
 
 
         <Button

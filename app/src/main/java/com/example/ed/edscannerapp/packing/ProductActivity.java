@@ -78,7 +78,9 @@ public class ProductActivity extends AppCompatActivity {
                     }
                 });
 
-                builder.create().show();
+                if (!ProductActivity.this.isFinishing()) {
+                    builder.create().show();
+                }
             };
 
         });
@@ -243,7 +245,9 @@ public class ProductActivity extends AppCompatActivity {
             }
         });
 
-        dialog.show();
+        if (!ProductActivity.this.isFinishing()) {
+            dialog.show();
+        }
     }
 
     public void manualButtonHandler(View w){
@@ -262,7 +266,9 @@ public class ProductActivity extends AppCompatActivity {
             }
         }).setNegativeButton("Отмена", null);
 
-        builder.create().show();
+        if (!ProductActivity.this.isFinishing()) {
+            builder.create().show();
+        }
     }
 
     public void checkProduct(boolean manual, String barcode, boolean manualInputBarcode){

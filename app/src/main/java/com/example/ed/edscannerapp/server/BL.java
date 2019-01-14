@@ -1,5 +1,6 @@
 package com.example.ed.edscannerapp.server;
 
+import com.example.ed.edscannerapp.Settings;
 import com.example.ed.edscannerapp.entities.BaseResponse;
 import com.example.ed.edscannerapp.entities.CheckResponse;
 import com.example.ed.edscannerapp.entities.InfoResponse;
@@ -14,10 +15,18 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class BL {
 
-    static private ServerAPI EP = new Retrofit.Builder()
-            .baseUrl("https://esh-derevenskoe.ru/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build().create(ServerAPI.class);
+    static private ServerAPI EP = getServerAPIInst(Settings.getServerAddress());
+
+    static public void updateServerAPIInst() {
+        EP = getServerAPIInst(Settings.getServerAddress());
+    }
+
+    static private ServerAPI getServerAPIInst(String baseUrl) {
+        return new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build().create(ServerAPI.class);
+    }
 
     static public Call<OrdersResponse> getOrders(String login, String salt, String sig){
         return EP.getOrders(login, salt, sig);

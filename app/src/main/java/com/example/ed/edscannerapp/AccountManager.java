@@ -1,10 +1,5 @@
 package com.example.ed.edscannerapp;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.widget.TextView;
-
 import com.example.ed.edscannerapp.entities.InfoResponse;
 import com.example.ed.edscannerapp.entities.User;
 import com.example.ed.edscannerapp.entities.VerificationResponse;
@@ -19,27 +14,8 @@ import retrofit2.Response;
 import static com.example.ed.edscannerapp.Helper.sha256;
 
 public class AccountManager {
-
-    private class Storage {
-
-        private SharedPreferences sharedPref;
-        private Activity activity;
-
-        public Storage(Activity activity){
-            this.activity = activity;
-            this.sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        }
-
-        public String getString(int id){
-            return sharedPref.getString(activity.getString(id), null);
-        }
-
-        public void setString(int id, String value){
-            sharedPref.edit().putString(activity.getString(id), value).commit();
-        }
-    }
-
     static private AccountManager instance;
+    private Storage storage;
 
     private String login = null;
     private String password = null;
@@ -47,10 +23,8 @@ public class AccountManager {
     private String sig = null;
     private User user = null;
 
-    private Storage storage;
-
-    private AccountManager(Activity activity){
-        storage = new Storage(activity);
+    private AccountManager(){
+        storage = Storage.getInstance();
 
         String login = storage.getString(R.string.account_manager_login);
 
@@ -62,9 +36,9 @@ public class AccountManager {
         }
     }
 
-    public static void initInstance(Activity activity) {
+    public static void initInstance() {
         if (instance == null) {
-            instance = new AccountManager(activity);
+            instance = new AccountManager();
         }
     }
 

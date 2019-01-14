@@ -2,6 +2,7 @@ package com.example.ed.edscannerapp;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.example.ed.edscannerapp.entities.User;
@@ -20,12 +22,15 @@ import com.example.ed.edscannerapp.packing.OrderActivity;
 public class MainActivity extends AppCompatActivity {
 
     static public final int LOGIN_ACTIVITY_CODE = 3;
+    static public final int SETTINGS_ACTIVITY_CODE = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        AccountManager.initInstance(this);
+        Storage.initInstance(this);
+        AccountManager.initInstance();
+
         checkLogined();
 
         Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.inContext(MainActivity.this));
@@ -35,36 +40,44 @@ public class MainActivity extends AppCompatActivity {
         AccountManager accountManager = AccountManager.getInstance();
 
         if(accountManager.isLogined()){
-            initView();
+            setContentView(R.layout.activity_main);
+            updateView();
         }
         else {
             this.openLoginActivity();
         }
     }
 
-    private void initView(){
+    private void updateView(){
         AccountManager accountManager = AccountManager.getInstance();
 
         accountManager.getUser(new AccountManager.UserCallback() {
             @Override
             public void success(User user) {
                 if(user != null) {
-                    setContentView(R.layout.activity_main);
-
                     TextView userNameView = (TextView) findViewById(R.id.main_user_name);
                     userNameView.setText(user.getFullName());
                 } else {
                     AlertDialog.Builder builder = Helper.getDialogBuilder(MainActivity.this,
                             "Отсутствует соединение с сервером", "", null);
 
-                    builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
+                    builder.setPositiveButton("Перейти в настройки", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            MainActivity.this.initView();
+                            MainActivity.this.openSettings();
                         }
                     });
 
-                    builder.create().show();
+                    builder.setNegativeButton("Повторить", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            MainActivity.this.updateView();
+                        }
+                    });
+
+                    if (!MainActivity.this.isFinishing()) {
+                        builder.create().show();
+                    }
                 }
             }
         });
@@ -90,11 +103,60 @@ public class MainActivity extends AppCompatActivity {
             }
         }).setNegativeButton("Отмена", null);
 
-        builder.create().show();
+        if (!MainActivity.this.isFinishing()) {
+            builder.create().show();
+        }
     }
 
     public void checkProduct(View w){
         startActivity(new Intent(this, CheckActivity.class));
+    }
+
+    public void openSettings() {
+        AlertDialog.Builder builder = Helper.getDialogBuilder(this,
+                "Введите код доступа", "", R.layout.barcode);
+
+        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
+                String barcode = textView.getText().toString();
+
+                if(barcode.equals("2236")) {
+                    startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), SETTINGS_ACTIVITY_CODE);
+                } else {
+                    MainActivity.this.updateView();
+                    Helper.showErrorMessage(MainActivity.this, "Неверный код доступа");
+                }
+
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+            }
+        }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                MainActivity.this.updateView();
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            }
+        });
+
+        if (!MainActivity.this.isFinishing()) {
+            dialog.show();
+        }
+    }
+
+    public void openSettings(View w){
+        this.openSettings();
     }
 
     private void openLoginActivity(){
@@ -121,6 +183,10 @@ public class MainActivity extends AppCompatActivity {
 
             case LOGIN_ACTIVITY_CODE:
                 checkLogined();
+                break;
+
+            case SETTINGS_ACTIVITY_CODE:
+                updateView();
                 break;
         }
     }

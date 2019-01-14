@@ -179,8 +179,9 @@ public class ProductsActivity extends AppCompatActivity implements SwipeRefreshL
             }
         });
 
-
-        dialog.show();
+        if (!ProductsActivity.this.isFinishing()) {
+            dialog.show();
+        }
     }
 
     @Override

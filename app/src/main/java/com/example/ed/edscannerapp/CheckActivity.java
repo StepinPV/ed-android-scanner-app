@@ -111,7 +111,9 @@ public class CheckActivity extends AppCompatActivity {
             }
         });
 
-        dialog.show();
+        if (!CheckActivity.this.isFinishing()) {
+            dialog.show();
+        }
     }
 
     public void checkProduct(final String barcode){
