@@ -7,6 +7,9 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Storage.initInstance(this.getApplicationContext());
+        AccountManager.initInstance();
     }
 
 }

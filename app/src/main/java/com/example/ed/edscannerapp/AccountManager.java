@@ -5,17 +5,21 @@ import com.example.ed.edscannerapp.entities.User;
 import com.example.ed.edscannerapp.entities.VerificationResponse;
 import com.example.ed.edscannerapp.server.BL;
 
+import java.security.MessageDigest;
 import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.example.ed.edscannerapp.Helper.sha256;
-
 public class AccountManager {
     static private AccountManager instance;
     private Storage storage;
+
+    private final String LOGIN_KEY = "account_manager_login";
+    private final String PASSWORD_KEY = "account_manager_password";
+    private final String SALT_KEY = "account_manager_salt";
+    private final String SIG_KEY = "account_manager_sig";
 
     private String login = null;
     private String password = null;
@@ -26,13 +30,13 @@ public class AccountManager {
     private AccountManager(){
         storage = Storage.getInstance();
 
-        String login = storage.getString(R.string.account_manager_login);
+        String login = storage.getString(LOGIN_KEY);
 
         if(login != null){
             this.login = login;
-            this.password = storage.getString(R.string.account_manager_password);
-            this.salt = storage.getString(R.string.account_manager_salt);
-            this.sig = storage.getString(R.string.account_manager_sig);
+            this.password = storage.getString(PASSWORD_KEY);
+            this.salt = storage.getString(SALT_KEY);
+            this.sig = storage.getString(SIG_KEY);
         }
     }
 
@@ -155,22 +159,46 @@ public class AccountManager {
 
     private void setLogin(String login){
         this.login = login;
-        storage.setString(R.string.account_manager_login, login);
+        storage.setString(LOGIN_KEY, login);
     }
 
     private void setSalt(String salt){
         this.salt = salt;
-        storage.setString(R.string.account_manager_salt, salt);
+        storage.setString(SALT_KEY, salt);
     }
 
     private void setSig(String sig){
         this.sig = sig;
-        storage.setString(R.string.account_manager_sig, sig);
+        storage.setString(SIG_KEY, sig);
     }
 
     private void setPassword(String password){
         this.password = password;
-        storage.setString(R.string.account_manager_password, password);
+        storage.setString(PASSWORD_KEY, password);
+    }
+
+    private String sha256(String val) {
+        String password = val;
+        MessageDigest md = null;
+
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+        md.update(password.getBytes());
+
+        byte byteData[] = md.digest();
+
+        //convert the byte to hex format method 1
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < byteData.length; i++) {
+            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        return sb.toString();
     }
 
 }

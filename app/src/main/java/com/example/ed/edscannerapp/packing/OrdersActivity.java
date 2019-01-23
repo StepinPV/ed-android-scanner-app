@@ -5,36 +5,32 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 
 import com.example.ed.edscannerapp.AccountManager;
+import com.example.ed.edscannerapp.BaseActivity;
 import com.example.ed.edscannerapp.R;
 import com.example.ed.edscannerapp.entities.Order;
-import com.example.ed.edscannerapp.entities.Orders;
 import com.example.ed.edscannerapp.entities.OrdersResponse;
 import com.example.ed.edscannerapp.entities.User;
 import com.example.ed.edscannerapp.server.BL;
 
-import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class OrdersActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class OrdersActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     SwipeRefreshLayout mSwipeRefreshLayout;
     ListView listView;
@@ -218,21 +214,5 @@ public class OrdersActivity extends AppCompatActivity implements SwipeRefreshLay
 
             return convertView;
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == 139) {
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode == 139){
-            return true;
-        }
-        return super.onKeyUp(keyCode, event);
     }
 }

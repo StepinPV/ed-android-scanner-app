@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -15,20 +14,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ed.edscannerapp.AccountManager;
-import com.example.ed.edscannerapp.BarcodeScanner;
-import com.example.ed.edscannerapp.Helper;
 import com.example.ed.edscannerapp.R;
+import com.example.ed.edscannerapp.ScannerActivity;
 import com.example.ed.edscannerapp.entities.Order;
 import com.example.ed.edscannerapp.entities.User;
 
-public class OrderActivity extends AppCompatActivity {
+public class OrderActivity extends ScannerActivity {
 
     static public final int PRODUCT_ACTIVITY_CODE = 1;
     static public final int ORDERS_ACTIVITY_CODE = 2;
     static public final int PAUSE_ACTIVITY_CODE = 3;
     private String selectedOrderId;
     private String selectOrderStatus;
-    private BarcodeScanner barcodeScanner = null;
     private SoundPool soundPool;
     private int soundID;
 
@@ -53,8 +50,7 @@ public class OrderActivity extends AppCompatActivity {
             };
             @Override
             public void error(String message){
-                AlertDialog.Builder builder = Helper.getDialogBuilder(OrderActivity.this,
-                        "Отсутствует соединение с сервером", "", null);
+                AlertDialog.Builder builder = OrderActivity.this.getDialogBuilder("Отсутствует соединение с сервером", "", null);
 
                 builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
                     @Override
@@ -79,8 +75,7 @@ public class OrderActivity extends AppCompatActivity {
             @Override
             public void error(String message){
                 if(!OrderActivity.this.isFinishing()) {
-                    AlertDialog.Builder builder = Helper.getDialogBuilder(OrderActivity.this,
-                            message, "", null);
+                    AlertDialog.Builder builder = OrderActivity.this.getDialogBuilder(message, "", null);
 
                     builder.setPositiveButton("ОК", null);
 
@@ -137,8 +132,7 @@ public class OrderActivity extends AppCompatActivity {
             @Override
             public void error(String message){
                 //TODO
-                AlertDialog.Builder builder = Helper.getDialogBuilder(OrderActivity.this,
-                        message,
+                AlertDialog.Builder builder = OrderActivity.this.getDialogBuilder(message,
                         "", null);
 
                 builder.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
@@ -151,7 +145,7 @@ public class OrderActivity extends AppCompatActivity {
                             };
                             @Override
                             public void error(String message){
-                                Helper.showErrorMessage(OrderActivity.this, message);
+                                OrderActivity.this.showErrorMessage(message);
                             };
                         });
                     }
@@ -166,8 +160,7 @@ public class OrderActivity extends AppCompatActivity {
 
     public void pauseButtonHandler(View w){
 
-        AlertDialog.Builder builder = Helper.getDialogBuilder(this,
-                "Вы действительно хотите перейти к процессу заморозки заказа?",
+        AlertDialog.Builder builder = this.getDialogBuilder("Вы действительно хотите перейти к процессу заморозки заказа?",
                 "", null);
 
         builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
@@ -184,8 +177,7 @@ public class OrderActivity extends AppCompatActivity {
 
     public void cancelButtonHandler(View w){
 
-        AlertDialog.Builder builder = Helper.getDialogBuilder(this,
-                "Вы действительно хотите рассформировать сборку данного заказа?",
+        AlertDialog.Builder builder = this.getDialogBuilder("Вы действительно хотите рассформировать сборку данного заказа?",
                 "", null);
 
         builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
@@ -198,7 +190,7 @@ public class OrderActivity extends AppCompatActivity {
                     };
                     @Override
                     public void error(String message){
-                        Helper.showErrorMessage(OrderActivity.this, message);
+                        OrderActivity.this.showErrorMessage(message);
                     };
                 });
             }
@@ -346,60 +338,28 @@ public class OrderActivity extends AppCompatActivity {
     @Override
     public void onDestroy(){
         Manager.destroyInstance();
-        this.destroyScanner();
         super.onDestroy();
     }
 
-    private void initScanner() {
-        if(barcodeScanner == null) {
-            barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
-                @Override
-                public void success(String barcode) {
-                    soundPool.play(soundID, 1, 1,1,0, 1f);
-                    if(barcode.equals(OrderActivity.this.selectedOrderId)) {
-                        Toast toast = Toast.makeText(getApplicationContext(),
-                                "Данный заказ уже выбран!", Toast.LENGTH_SHORT);
-                        toast.show();
-                    } else {
-                        OrderActivity.this.updateOrderById(barcode);
-                    }
-                }
-            });
-        }
-    }
-
-    private void destroyScanner() {
-        if(barcodeScanner != null) {
-            barcodeScanner.destroy();
-            barcodeScanner = null;
+    public void handleScanner(String barcode) {
+        soundPool.play(soundID, 1, 1,1,0, 1f);
+        if(barcode.equals(OrderActivity.this.selectedOrderId)) {
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    "Данный заказ уже выбран!", Toast.LENGTH_SHORT);
+            toast.show();
+        } else {
+            OrderActivity.this.updateOrderById(barcode);
         }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == 139) {
-            if(barcodeScanner != null && event.getRepeatCount() == 0) {
-                barcodeScanner.startScan();
-            }
-            return true;
-        }
-        else if(keyCode == 82) {
+        if(keyCode == 82) {
             if(!selectOrderStatus.equals(Order.STATUS_ACTIVE)){
                 this.openOrdersActivity();
             }
             return true;
         }
         return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode == 139){
-            if(barcodeScanner != null && event.getRepeatCount() == 0) {
-                barcodeScanner.stopScan();
-            }
-            return true;
-        }
-        return super.onKeyUp(keyCode, event);
     }
 }

@@ -8,9 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
@@ -19,7 +17,7 @@ import com.example.ed.edscannerapp.entities.User;
 
 import com.example.ed.edscannerapp.packing.OrderActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     static public final int LOGIN_ACTIVITY_CODE = 3;
     static public final int SETTINGS_ACTIVITY_CODE = 4;
@@ -27,9 +25,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Storage.initInstance(this);
-        AccountManager.initInstance();
 
         checkLogined();
 
@@ -58,8 +53,7 @@ public class MainActivity extends AppCompatActivity {
                     TextView userNameView = (TextView) findViewById(R.id.main_user_name);
                     userNameView.setText(user.getFullName());
                 } else {
-                    AlertDialog.Builder builder = Helper.getDialogBuilder(MainActivity.this,
-                            "Отсутствует соединение с сервером", "", null);
+                    AlertDialog.Builder builder = MainActivity.this.getDialogBuilder("Отсутствует соединение с сервером", "", null);
 
                     builder.setPositiveButton("Перейти в настройки", new DialogInterface.OnClickListener() {
                         @Override
@@ -91,9 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void logout(View w){
 
-        AlertDialog.Builder builder = Helper.getDialogBuilder(this,
-                "Вы действительно хотите выйти?",
-                "", null);
+        AlertDialog.Builder builder = this.getDialogBuilder("Вы действительно хотите выйти?", "", null);
 
         builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
             @Override
@@ -113,8 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openSettings() {
-        AlertDialog.Builder builder = Helper.getDialogBuilder(this,
-                "Введите код доступа", "", R.layout.barcode);
+        AlertDialog.Builder builder = this.getDialogBuilder("Введите код доступа", "", R.layout.barcode);
 
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -128,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), SETTINGS_ACTIVITY_CODE);
                 } else {
                     MainActivity.this.updateView();
-                    Helper.showErrorMessage(MainActivity.this, "Неверный код доступа");
+                    MainActivity.this.showErrorMessage("Неверный код доступа");
                 }
 
                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
@@ -189,21 +180,5 @@ public class MainActivity extends AppCompatActivity {
                 updateView();
                 break;
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == 139) {
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode == 139){
-            return true;
-        }
-        return super.onKeyUp(keyCode, event);
     }
 }

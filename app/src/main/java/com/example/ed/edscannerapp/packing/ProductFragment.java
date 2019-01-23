@@ -9,7 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cunoraz.gifview.library.GifView;
-import com.example.ed.edscannerapp.Helper;
+import com.example.ed.edscannerapp.Deferred;
+import com.example.ed.edscannerapp.ImageLoader;
 import com.example.ed.edscannerapp.R;
 import com.example.ed.edscannerapp.entities.Product;
 
@@ -80,17 +81,17 @@ public class ProductFragment extends Fragment {
         errorView = (ImageView) rootView.findViewById(R.id.activity_product_error);
 
         ImageView imageView = (ImageView) rootView.findViewById(R.id.activity_product_image);
-        new Helper.ImageLoader(imageView).execute(args.getString(PRODUCT_IMAGE));
+        new ImageLoader(imageView).execute(args.getString(PRODUCT_IMAGE));
 
         return rootView;
     }
 
-    public void showSuccess(Timer timer, Helper.Deferred def) {
+    public void showSuccess(Timer timer, Deferred def) {
         overlayView.setVisibility(View.VISIBLE);
         successView.setVisibility(View.VISIBLE);
         successView.play();
 
-        def.addCallback(new Helper.DeferredCallback() {
+        def.addCallback(new Deferred.Callback() {
             @Override
             public void success() {
                 overlayView.setVisibility(View.GONE);
@@ -102,11 +103,11 @@ public class ProductFragment extends Fragment {
         timer.schedule(def, animationTime);
     }
 
-    public void showError(Timer timer, Helper.Deferred def) {
+    public void showError(Timer timer, Deferred def) {
         overlayView.setVisibility(View.VISIBLE);
         errorView.setVisibility(View.VISIBLE);
 
-        def.addCallback(new Helper.DeferredCallback() {
+        def.addCallback(new Deferred.Callback() {
             @Override
             public void success() {
                 overlayView.setVisibility(View.GONE);

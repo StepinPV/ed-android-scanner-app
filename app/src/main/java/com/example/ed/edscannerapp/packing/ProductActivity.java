@@ -8,8 +8,8 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Vibrator;
-import android.support.v7.app.AppCompatActivity;
 
+import com.example.ed.edscannerapp.BaseActivity;
 import com.example.ed.edscannerapp.CustomViewPager;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -24,10 +24,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.ed.edscannerapp.AccountManager;
-import com.example.ed.edscannerapp.BarcodeScanner;
 import com.example.ed.edscannerapp.CheckActivity;
-import com.example.ed.edscannerapp.Helper;
+import com.example.ed.edscannerapp.Deferred;
 import com.example.ed.edscannerapp.R;
+import com.example.ed.edscannerapp.ScannerActivity;
 import com.example.ed.edscannerapp.entities.Order;
 import com.example.ed.edscannerapp.entities.Product;
 import com.example.ed.edscannerapp.entities.Products;
@@ -35,7 +35,7 @@ import com.example.ed.edscannerapp.entities.User;
 
 import java.util.Timer;
 
-public class ProductActivity extends AppCompatActivity {
+public class ProductActivity extends ScannerActivity {
 
     static final int PRODUCTS_ACTIVITY_CODE = 1;
     static final int CHECK_ACTIVITY_CODE = 2;
@@ -46,7 +46,6 @@ public class ProductActivity extends AppCompatActivity {
     private Manager manager = Manager.getInstance();
     private int currentPagePosition = 0;
     private boolean hasBarcode = false;
-    private BarcodeScanner barcodeScanner = null;
     private SoundPool soundPool;
     private int soundID;
     private boolean confirmingProcess;
@@ -68,8 +67,7 @@ public class ProductActivity extends AppCompatActivity {
 
             @Override
             public void error(String message){
-                AlertDialog.Builder builder = Helper.getDialogBuilder(ProductActivity.this,
-                        "Отсутствует соединение с сервером", "", null);
+                AlertDialog.Builder builder = ProductActivity.this.getDialogBuilder("Отсутствует соединение с сервером", "", null);
 
                 builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
                     @Override
@@ -130,23 +128,9 @@ public class ProductActivity extends AppCompatActivity {
         updateData();
     }
 
-    private void initScanner() {
-        if(barcodeScanner == null){
-            barcodeScanner = new BarcodeScanner(this, new BarcodeScanner.ScanCallback() {
-                @Override
-                public void success(String barcode) {
-                    checkProduct(false, barcode, false);
-                }
-            });
-        }
-
-    }
-
-    private void destroyScanner() {
-        if(barcodeScanner != null) {
-            barcodeScanner.destroy();
-            barcodeScanner = null;
-        }
+    @Override
+    public void handleScanner(String barcode) {
+        checkProduct(false, barcode, false);
     }
 
     private void updateButtons(){
@@ -197,7 +181,7 @@ public class ProductActivity extends AppCompatActivity {
 
             @Override
             public void error(String message) {
-                Helper.showErrorMessage(ProductActivity.this, message);
+                ProductActivity.this.showErrorMessage(message);
             }
         });
     }
@@ -214,8 +198,7 @@ public class ProductActivity extends AppCompatActivity {
             return;
         }
 
-        AlertDialog.Builder builder = Helper.getDialogBuilder(this,
-                "Введите штрих код товара в поле ввода",
+        AlertDialog.Builder builder = this.getDialogBuilder("Введите штрих код товара в поле ввода",
                 "Ручной ввод штрихкода", R.layout.barcode);
 
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -255,8 +238,7 @@ public class ProductActivity extends AppCompatActivity {
             return;
         }
         
-        AlertDialog.Builder builder = Helper.getDialogBuilder(this,
-                "Вы действительно хотите подтвердить товар вручную?",
+        AlertDialog.Builder builder = this.getDialogBuilder("Вы действительно хотите подтвердить товар вручную?",
                 "Ручное подтверждение товара", null);
 
         builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
@@ -307,9 +289,9 @@ public class ProductActivity extends AppCompatActivity {
 
     public void errorBarcode(){
         confirmingProcess = true;
-        Helper.Deferred def = new Helper.Deferred(ProductActivity.this);
+        Deferred def = new Deferred(ProductActivity.this);
 
-        def.addCallback(new Helper.DeferredCallback(){
+        def.addCallback(new Deferred.Callback(){
             @Override
             public void success(){
                 confirmingProcess = false;
@@ -325,9 +307,9 @@ public class ProductActivity extends AppCompatActivity {
         manager.confirmProduct(productId, manual, new Manager.ConfirmProductCallback() {
             @Override
             public void success(final Manager.BeforeProductsModifyCallback callback) {
-                Helper.Deferred def = new Helper.Deferred(ProductActivity.this);
+                Deferred def = new Deferred(ProductActivity.this);
 
-                def.addCallback(new Helper.DeferredCallback(){
+                def.addCallback(new Deferred.Callback(){
 
                     @Override
                     public void success(){
@@ -345,7 +327,7 @@ public class ProductActivity extends AppCompatActivity {
 
             @Override
             public void error(String message) {
-                Helper.showErrorMessage(ProductActivity.this, message);
+                ProductActivity.this.showErrorMessage(message);
                 viewPager.setPagingEnabled(true);
                 confirmingProcess = false;
             }
@@ -410,19 +392,15 @@ public class ProductActivity extends AppCompatActivity {
                 };
                 @Override
                 public void error(String message){
-                    Helper.showErrorMessage(ProductActivity.this, message);
+                    ProductActivity.this.showErrorMessage(message);
                 };
             });
         }
 
         if(complete) {
-            if(this.barcodeScanner != null) {
-                this.destroyScanner();
-            }
+            this.destroyScanner();
         } else {
-            if(this.barcodeScanner == null) {
-                this.initScanner();
-            }
+            this.initScanner();
         }
 
     }
@@ -471,14 +449,14 @@ public class ProductActivity extends AppCompatActivity {
                 );
     }
 
-    private void showSuccess(Timer timer, Helper.Deferred def){
+    private void showSuccess(Timer timer, Deferred def){
         ProductFragment f = getCurrentFragment();
         if(f != null) {
             f.showSuccess(timer, def);
         }
     }
 
-    private void showError(Timer timer, Helper.Deferred def){
+    private void showError(Timer timer, Deferred def){
         ProductFragment f = getCurrentFragment();
         if(f != null) {
             f.showError(timer, def);
@@ -487,49 +465,16 @@ public class ProductActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == 139) {
-            if(barcodeScanner != null && !confirmingProcess && hasBarcode){
-                if(event.getRepeatCount() == 0) {
-                    barcodeScanner.startScan();
-                }
-            }
-            return true;
-        }
-        else if(keyCode == 82) {
+        if(keyCode == 82) {
             this.openProductsActivity();
             return true;
         }
-        else {
-            return super.onKeyDown(keyCode, event);
-        }
+
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode==139){
-            if(barcodeScanner != null && event.getRepeatCount() == 0) {
-                barcodeScanner.stopScan();
-            }
-            return true;
-        }
-        return super.onKeyUp(keyCode, event);
+    public boolean needScanning() {
+        return !confirmingProcess && hasBarcode;
     }
-
-    @Override
-    public void onDestroy(){
-        this.destroyScanner();
-        super.onDestroy();
-    }
-
-    /*@Override
-    public void onPause() {
-        super.onPause();
-        this.destroyScanner();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        this.updateData();
-    }*/
 }

@@ -9,13 +9,4 @@
     <string name="order_status_active"></string>
     <string name="order_status_default"></string>
     <string name="pause_order_id">Процесс заморозки заказа №%s </string>
-
-    <string name="account_manager_login">com_example_ed_edscannerapp_account_manager_login</string>
-    <string name="account_manager_password">com_example_ed_edscannerapp_account_manager_password</string>
-    <string name="account_manager_salt">com_example_ed_edscannerapp_account_manager_salt</string>
-    <string name="account_manager_sig">com_example_ed_edscannerapp_account_manager_sig</string>
-
-    <string name="settings_server_ip_type">com_example_ed_edscannerapp_settings_server_ip_type</string>
-    <string name="settings_server_ip_ip">com_example_ed_edscannerapp_settings_server_ip_ip</string>
-    <string name="settings_server_ip_port">com_example_ed_edscannerapp_settings_server_ip_port</string>
 </resources>

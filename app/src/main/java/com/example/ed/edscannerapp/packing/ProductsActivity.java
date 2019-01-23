@@ -7,8 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,13 +19,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.ed.edscannerapp.AccountManager;
-import com.example.ed.edscannerapp.Helper;
+import com.example.ed.edscannerapp.BaseActivity;
 import com.example.ed.edscannerapp.R;
 import com.example.ed.edscannerapp.entities.Product;
 import com.example.ed.edscannerapp.entities.Products;
 import com.example.ed.edscannerapp.entities.User;
 
-public class ProductsActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class ProductsActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     Manager manager = Manager.getInstance();
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -101,8 +99,7 @@ public class ProductsActivity extends AppCompatActivity implements SwipeRefreshL
         final int packingQuantity = product.getPackingQuantity();
         final boolean manyQuantity = packingQuantity > 1;
 
-        AlertDialog.Builder builder = Helper.getDialogBuilder(this,
-                manyQuantity ? "Введите количество товара" : "",
+        AlertDialog.Builder builder = this.getDialogBuilder(manyQuantity ? "Введите количество товара" : "",
                 "Отменить упаковку товара?", manyQuantity ? R.layout.barcode : null);
 
         final AlertDialog dialog;
@@ -165,14 +162,13 @@ public class ProductsActivity extends AppCompatActivity implements SwipeRefreshL
 
                                 @Override
                                 public void error(String message) {
-                                    Helper.showErrorMessage(ProductsActivity.this, message);
+                                    ProductsActivity.this.showErrorMessage(message);
                                 }
                             });
                         }
                         else {
                             textView.setError("Ввведите корректное значение!");
                         }
-
 
                     }
                 });
@@ -268,21 +264,5 @@ public class ProductsActivity extends AppCompatActivity implements SwipeRefreshL
             convertView.setBackgroundResource(color);
             return convertView;
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == 139) {
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode == 139){
-            return true;
-        }
-        return super.onKeyUp(keyCode, event);
     }
 }

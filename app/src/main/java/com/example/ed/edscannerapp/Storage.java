@@ -1,32 +1,30 @@
 package com.example.ed.edscannerapp;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class Storage {
 
     static private Storage instance;
 
     private SharedPreferences sharedPref;
-    private Activity activity;
 
-    private Storage(Activity activity){
-        this.activity = activity;
-        this.sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+    private Storage(Context context){
+        this.sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public String getString(int id){
-        return sharedPref.getString(activity.getString(id), null);
+    public String getString(String key){
+        return sharedPref.getString(key, null);
     }
 
-    public void setString(int id, String value){
-        sharedPref.edit().putString(activity.getString(id), value).commit();
+    public void setString(String key, String value){
+        sharedPref.edit().putString(key, value).commit();
     }
 
-    public static void initInstance(Activity activity) {
+    public static void initInstance(Context context) {
         if (instance == null) {
-            instance = new Storage(activity);
+            instance = new Storage(context);
         }
     }
 

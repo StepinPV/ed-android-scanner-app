@@ -1,10 +1,7 @@
 package com.example.ed.edscannerapp.packing;
 
 import android.content.Context;
-import android.icu.text.DateFormat;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +11,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.ed.edscannerapp.AccountManager;
-import com.example.ed.edscannerapp.Helper;
+import com.example.ed.edscannerapp.BaseActivity;
 import com.example.ed.edscannerapp.R;
 import com.example.ed.edscannerapp.entities.Order;
 import com.example.ed.edscannerapp.entities.Product;
@@ -27,12 +24,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PauseActivity extends AppCompatActivity {
+public class PauseActivity extends BaseActivity {
 
     Manager manager = Manager.getInstance();
     ProductsListAdapter adapter;
     Boolean confirming = false;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +71,7 @@ public class PauseActivity extends AppCompatActivity {
             @Override
             public void error(String message){
                 confirming = false;
-                Helper.showErrorMessage(PauseActivity.this, message);
+                PauseActivity.this.showErrorMessage(message);
             };
         });
     }
@@ -144,21 +140,5 @@ public class PauseActivity extends AppCompatActivity {
 
             return convertView;
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == 139) {
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode == 139){
-            return true;
-        }
-        return super.onKeyUp(keyCode, event);
     }
 }
