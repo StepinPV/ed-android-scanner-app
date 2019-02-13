@@ -48,6 +48,9 @@ public class Product {
     @SerializedName("packing_quantity")
     private int packingQuantity;
 
+    @SerializedName("weight_flag")
+    private boolean hasWeight;
+
     private int rejectCount = 0;
 
     final public static String STATUS_UNSCANNED = "1";
@@ -148,5 +151,9 @@ public class Product {
 
     public int getPackingQuantity(){
         return packingQuantity;
+    }
+
+    public boolean hasWeight() {
+        return hasWeight;
     }
 }

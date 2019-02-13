@@ -140,10 +140,10 @@ public class Manager {
         void success();
     }
 
-    public void confirmProduct(final String productId, final boolean manual, final ConfirmProductCallback callback){
+    public void confirmProduct(final String productId, final boolean manual, final String weight, final ConfirmProductCallback callback){
 
         AccountManager am = AccountManager.getInstance();
-        BL.confirmProduct(am.getLogin(), am.getSalt(), am.getSig(), productId, manual).enqueue(new Callback<BaseResponse>() {
+        BL.confirmProduct(am.getLogin(), am.getSalt(), am.getSig(), productId, manual, weight).enqueue(new Callback<BaseResponse>() {
             @Override
             public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                 if (response.isSuccessful()) {

@@ -65,12 +65,14 @@ public interface ServerAPI {
     @FormUrlEncoded
     @POST(path + "product_confirm_auto")
     Call<BaseResponse> confirmProductAuto(@Field("login") String login, @Field("salt") String salt,
-                                    @Field("sig") String sig, @Field("order_product_id") String productId);
+                                    @Field("sig") String sig, @Field("order_product_id") String productId,
+                                          @Field("product_weight") String weight);
 
     @FormUrlEncoded
     @POST(path + "product_confirm_manual")
     Call<BaseResponse> confirmProductManual(@Field("login") String login, @Field("salt") String salt,
-                                           @Field("sig") String sig, @Field("order_product_id") String productId);
+                                           @Field("sig") String sig, @Field("order_product_id") String productId,
+                                            @Field("product_weight") String weight);
 
     @FormUrlEncoded
     @POST(path + "product_remove")

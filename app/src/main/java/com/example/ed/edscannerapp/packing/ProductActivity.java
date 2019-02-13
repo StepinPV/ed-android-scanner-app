@@ -9,7 +9,6 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Vibrator;
 
-import com.example.ed.edscannerapp.BaseActivity;
 import com.example.ed.edscannerapp.CustomViewPager;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -49,6 +48,10 @@ public class ProductActivity extends ScannerActivity {
     private SoundPool soundPool;
     private int soundID;
     private boolean confirmingProcess;
+
+    private boolean weightInputProcess;
+    private String activeProductId;
+    private boolean activeProductInputManual;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,8 +132,16 @@ public class ProductActivity extends ScannerActivity {
     }
 
     @Override
-    public void handleScanner(String barcode) {
-        checkProduct(false, barcode, false);
+    public void handleScanner(String value) {
+        if (this.weightInputProcess) {
+            soundPool.play(soundID, 1, 1,1,0, 1f);
+            successBarcode(this.activeProductId, this.activeProductInputManual, value);
+            this.weightInputProcess = false;
+            final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+        } else {
+            checkProduct(false, value, false);
+        }
     }
 
     private void updateButtons(){
@@ -233,11 +244,54 @@ public class ProductActivity extends ScannerActivity {
         }
     }
 
+    public void inputProductWeight(final String productId, final boolean manual){
+        AlertDialog.Builder builder = this.getDialogBuilder("Просканируйте или введите вес товара",
+                "Ввод веса", R.layout.barcode);
+
+        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
+                String weight = textView.getText().toString();
+
+                successBarcode(productId, manual, weight);
+
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                ProductActivity.this.weightInputProcess = false;
+            }
+        }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                ProductActivity.this.weightInputProcess = false;
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            }
+        });
+
+        if (!ProductActivity.this.isFinishing()) {
+            this.weightInputProcess = true;
+            this.activeProductId = productId;
+            this.activeProductInputManual = manual;
+            dialog.show();
+        }
+    }
+
     public void manualButtonHandler(View w){
         if(confirmingProcess){
             return;
         }
-        
+
         AlertDialog.Builder builder = this.getDialogBuilder("Вы действительно хотите подтвердить товар вручную?",
                 "Ручное подтверждение товара", null);
 
@@ -262,12 +316,21 @@ public class ProductActivity extends ScannerActivity {
         }
 
         if(manual){
-            successBarcode(currentProduct.getId(), true);
+            if (currentProduct.hasWeight()) {
+                inputProductWeight(currentProduct.getId(), true);
+            } else {
+                successBarcode(currentProduct.getId(), true, null);
+            }
         }
         else {
             if(currentProduct.checkBarcode(barcode)){
                 soundPool.play(soundID, 1, 1,1,0, 1f);
-                successBarcode(currentProduct.getId(), false);
+
+                if (currentProduct.hasWeight()) {
+                    inputProductWeight(currentProduct.getId(), false);
+                } else {
+                    successBarcode(currentProduct.getId(), false, null);
+                }
             }
             else {
                 Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -301,10 +364,10 @@ public class ProductActivity extends ScannerActivity {
         showError(new Timer(), def);
     }
 
-    public void successBarcode(String productId, boolean manual){
+    public void successBarcode(String productId, boolean manual, String weight){
         confirmingProcess = true;
         viewPager.setPagingEnabled(false);
-        manager.confirmProduct(productId, manual, new Manager.ConfirmProductCallback() {
+        manager.confirmProduct(productId, manual, weight, new Manager.ConfirmProductCallback() {
             @Override
             public void success(final Manager.BeforeProductsModifyCallback callback) {
                 Deferred def = new Deferred(ProductActivity.this);

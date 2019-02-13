@@ -68,8 +68,8 @@ public class BL {
         return EP.completeOrder(login, salt, sig, orderId);
     }
 
-    static public Call<BaseResponse> confirmProduct(String login, String salt, String sig, String productId, boolean manual){
-        return manual ? EP.confirmProductManual(login, salt, sig, productId) : EP.confirmProductAuto(login, salt, sig, productId);
+    static public Call<BaseResponse> confirmProduct(String login, String salt, String sig, String productId, boolean manual, String weight){
+        return manual ? EP.confirmProductManual(login, salt, sig, productId, weight) : EP.confirmProductAuto(login, salt, sig, productId, weight);
     }
 
     static public Call<BaseResponse> cancelProduct(String login, String salt, String sig, String productId, String quantity){
