@@ -67,16 +67,20 @@ public class BarcodeScanner {
 
         @Override
         protected Boolean doInBackground(String... params) {
-
-            if(barcode2DWithSoft == null){
-                barcode2DWithSoft = Barcode2DWithSoft.getInstance();
-            }
-
             boolean result = false;
 
-            if(barcode2DWithSoft != null) {
-                result = barcode2DWithSoft.open(activity);
+            try {
+                if(barcode2DWithSoft == null){
+                    barcode2DWithSoft = Barcode2DWithSoft.getInstance();
+                }
+
+                if(barcode2DWithSoft != null) {
+                    result = barcode2DWithSoft.open(activity);
+                }
+            } catch(Exception e){
+
             }
+
 
             return result;
         }

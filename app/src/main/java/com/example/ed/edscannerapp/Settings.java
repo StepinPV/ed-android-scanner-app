@@ -2,8 +2,6 @@ package com.example.ed.edscannerapp;
 
 import com.example.ed.edscannerapp.server.BL;
 
-import java.util.regex.Pattern;
-
 public class Settings {
 
     private static final String IP_TYPE_KEY = "settings_server_ip_type";
@@ -12,11 +10,6 @@ public class Settings {
 
     private static String FIRST_SERVER_IP = "https://esh-derevenskoe.ru/";
     private static String SECOND_SERVER_IP = "https://backup.esh-derevenskoe.ru/";
-    private static String IP_ADDRESS_PATTERN
-            = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
     public static String getServerAddress() {
         Storage storage = Storage.getInstance();
@@ -33,7 +26,15 @@ public class Settings {
         String serverIP = storage.getString(IP_KEY);
         String serverPort = storage.getString(PORT_KEY);
 
-        return "http://" + serverIP + ":" + serverPort + "/";
+        String address = serverPort.equals(null) || serverPort.equals("") ?
+                serverIP.trim() + "/" :
+                serverIP.trim() + ":" + serverPort.trim() + "/";
+
+        if (address.indexOf("http") != 0) {
+            address = "https://" + address;
+        }
+
+        return address;
     }
 
     public static String getServerIP() {
@@ -66,13 +67,9 @@ public class Settings {
         } else if (type.equals("2")) {
             storage.setString(IP_TYPE_KEY, "2");
         } else if (serverIP != null){
-            Pattern pattern = Pattern.compile(IP_ADDRESS_PATTERN);
-
-            if (pattern.matcher(serverIP).matches()) {
-                storage.setString(IP_TYPE_KEY, "3");
-                storage.setString(IP_KEY, serverIP);
-                storage.setString(PORT_KEY, (serverPort.equals("") || serverPort == null) ? "80" : serverPort);
-            }
+            storage.setString(IP_TYPE_KEY, "3");
+            storage.setString(IP_KEY, serverIP.trim());
+            storage.setString(PORT_KEY, serverPort.trim());
         }
 
         BL.updateServerAPIInst();

@@ -84,7 +84,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
                         android:layout_weight="1"
-                        android:text="Произвольный IP" />
+                        android:text="Произвольный" />
                 </RadioGroup>
             </LinearLayout>
 
@@ -113,7 +113,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
-                    android:text="IP адрес"
+                    android:text="IP адрес или домен"
                     android:textSize="14dp" />
 
                 <EditText

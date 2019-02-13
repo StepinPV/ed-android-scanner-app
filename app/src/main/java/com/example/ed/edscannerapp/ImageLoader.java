@@ -26,7 +26,7 @@ public class ImageLoader extends AsyncTask<String, String, Bitmap> {
         try {
             image = BitmapFactory.decodeStream((InputStream)new URL(args[0]).getContent());
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
 
         return image;
