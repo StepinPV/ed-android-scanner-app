@@ -52,10 +52,6 @@ public class SettingsActivity extends AppCompatActivity {
             // Вставляем в поле IP адрес
             String serverIP = Settings.getServerIP();
             ((EditText) findViewById(R.id.server_ip_ip_value)).setText(serverIP);
-
-            // Вставляем в поле port
-            String serverPort = Settings.getServerPort();
-            ((EditText) findViewById(R.id.server_ip_port_value)).setText(serverPort);
         }
 
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.server_ip_radio_group);
@@ -92,15 +88,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         switch (ipradioGroup.getCheckedRadioButtonId()) {
             case R.id.server_ip_type_1:
-                Settings.setServerIP("1", null, null);
+                Settings.setServerIP("1", null);
                 break;
             case R.id.server_ip_type_2:
-                Settings.setServerIP("2", null, null);
+                Settings.setServerIP("2", null);
                 break;
             case R.id.server_ip_type_3:
                 String serverIP = ((EditText) findViewById(R.id.server_ip_ip_value)).getText().toString();
-                String serverPort = ((EditText) findViewById(R.id.server_ip_port_value)).getText().toString();
-                Settings.setServerIP("3", serverIP, serverPort);
+                Settings.setServerIP("3", serverIP);
                 break;
 
             default:

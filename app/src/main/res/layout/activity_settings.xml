@@ -106,33 +106,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="Введите параметры сервера"
+                    android:text="Введите адрес"
                     android:textSize="18dp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:text="IP адрес или домен"
-                    android:textSize="14dp" />
 
                 <EditText
                     android:id="@+id/server_ip_ip_value"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1">
-                </EditText>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:text="Порт"
-                    android:textSize="14dp" />
-
-                <EditText
-                    android:id="@+id/server_ip_port_value"
-                    android:inputType="number"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">

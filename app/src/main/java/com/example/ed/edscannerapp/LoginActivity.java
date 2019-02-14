@@ -23,7 +23,7 @@ public class LoginActivity extends BaseActivity {
         loginText = (EditText) findViewById(R.id.login_login);
         passwordText = (EditText) findViewById(R.id.login_password);
 
-        Settings.setServerIP("1", null, null);
+        Settings.setServerIP("1", null);
     }
 
     public void login(View w){

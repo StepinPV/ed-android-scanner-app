@@ -6,7 +6,6 @@ public class Settings {
 
     private static final String IP_TYPE_KEY = "settings_server_ip_type";
     private static final String IP_KEY = "settings_server_ip_ip";
-    private static final String PORT_KEY = "settings_server_ip_port";
 
     private static String FIRST_SERVER_IP = "https://esh-derevenskoe.ru/";
     private static String SECOND_SERVER_IP = "https://backup.esh-derevenskoe.ru/";
@@ -24,11 +23,8 @@ public class Settings {
         }
 
         String serverIP = storage.getString(IP_KEY);
-        String serverPort = storage.getString(PORT_KEY);
 
-        String address = serverPort.equals(null) || serverPort.equals("") ?
-                serverIP.trim() + "/" :
-                serverIP.trim() + ":" + serverPort.trim() + "/";
+        String address = serverIP + "/";
 
         if (address.indexOf("http") != 0) {
             address = "https://" + address;
@@ -40,11 +36,6 @@ public class Settings {
     public static String getServerIP() {
         Storage storage = Storage.getInstance();
         return storage.getString(IP_KEY);
-    }
-
-    public static String getServerPort() {
-        Storage storage = Storage.getInstance();
-        return storage.getString(PORT_KEY);
     }
 
     public static String getServerIPType() {
@@ -59,7 +50,7 @@ public class Settings {
         return serverIPType;
     }
 
-    public static void setServerIP(String type, String serverIP, String serverPort) {
+    public static void setServerIP(String type, String serverIP) {
         Storage storage = Storage.getInstance();
 
         if (type == null || type.equals("1")) {
@@ -68,8 +59,7 @@ public class Settings {
             storage.setString(IP_TYPE_KEY, "2");
         } else if (serverIP != null){
             storage.setString(IP_TYPE_KEY, "3");
-            storage.setString(IP_KEY, serverIP.trim());
-            storage.setString(PORT_KEY, serverPort.trim());
+            storage.setString(IP_KEY, serverIP.trim().replaceAll("\\s+",""));
         }
 
         BL.updateServerAPIInst();

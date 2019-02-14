@@ -101,7 +101,7 @@ public class AccountManager {
 
             @Override
             public void onFailure(Call<VerificationResponse> call, Throwable t) {
-                callback.error("Отсутствует соединение с сервером!");
+                callback.error(t.getMessage() != null ? t.getMessage() : "Отсутствует соединение с сервером!");
             }
         });
     }
