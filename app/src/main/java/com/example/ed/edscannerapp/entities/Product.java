@@ -49,7 +49,7 @@ public class Product {
     private int packingQuantity;
 
     @SerializedName("weight_flag")
-    private boolean hasWeight;
+    private int hasWeight;
 
     private int rejectCount = 0;
 
@@ -154,6 +154,6 @@ public class Product {
     }
 
     public boolean hasWeight() {
-        return hasWeight;
+        return hasWeight == 1;
     }
 }
