@@ -24,7 +24,7 @@ public class Settings {
 
         String serverIP = storage.getString(IP_KEY);
 
-        String address = serverIP + "/";
+        String address = serverIP.charAt(serverIP.length() - 1) == '/' ? serverIP : serverIP + "/";
 
         if (address.indexOf("http") != 0) {
             address = "https://" + address;

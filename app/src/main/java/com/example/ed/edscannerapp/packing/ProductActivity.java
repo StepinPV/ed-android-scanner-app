@@ -21,6 +21,7 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ed.edscannerapp.AccountManager;
 import com.example.ed.edscannerapp.CheckActivity;
@@ -52,6 +53,7 @@ public class ProductActivity extends ScannerActivity {
     private boolean weightInputProcess;
     private String activeProductId;
     private boolean activeProductInputManual;
+    private AlertDialog weightInputDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,11 +136,24 @@ public class ProductActivity extends ScannerActivity {
     @Override
     public void handleScanner(String value) {
         if (this.weightInputProcess) {
+            if (value.length() != 13 || value.charAt(0) != '2') {
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "Данный штрихкод не является весовым!", Toast.LENGTH_SHORT);
+                toast.show();
+                return;
+            }
+
+            // Формат 2 000000 XXXXX 0
+            String weight = value.substring(7, 12);
+
+            successBarcode(this.activeProductId, this.activeProductInputManual, weight);
+
             soundPool.play(soundID, 1, 1,1,0, 1f);
-            successBarcode(this.activeProductId, this.activeProductInputManual, value);
             this.weightInputProcess = false;
             final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+            weightInputDialog.cancel();
+
         } else {
             checkProduct(false, value, false);
         }
@@ -246,7 +261,7 @@ public class ProductActivity extends ScannerActivity {
 
     public void inputProductWeight(final String productId, final boolean manual){
         AlertDialog.Builder builder = this.getDialogBuilder("Просканируйте или введите вес товара",
-                "Ввод веса", R.layout.barcode);
+                "Ввод веса в формате x.xxx (кг)", R.layout.weight);
 
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -256,10 +271,17 @@ public class ProductActivity extends ScannerActivity {
                 TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
                 String weight = textView.getText().toString();
 
-                successBarcode(productId, manual, weight);
+                if (weight.matches("^\\d\\d\\.\\d\\d\\d+$") || weight.matches("^\\d\\.\\d\\d\\d+$")) {
+                    successBarcode(productId, manual, weight);
 
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                ProductActivity.this.weightInputProcess = false;
+                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                    ProductActivity.this.weightInputProcess = false;
+                } else {
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Вес должен быть в формате x.xxx или xx.xxx", Toast.LENGTH_SHORT);
+                    toast.show();
+                    ProductActivity.this.inputProductWeight(productId, manual);
+                }
             }
         }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
             @Override
@@ -279,8 +301,27 @@ public class ProductActivity extends ScannerActivity {
             }
         });
 
+        dialog.setOnKeyListener(new AlertDialog.OnKeyListener() {
+
+            @Override
+            public boolean onKey(DialogInterface arg0, int keyCode,
+                                 KeyEvent event) {
+                if(keyCode == 139) {
+                    if(event.getAction() == event.ACTION_DOWN && scanner != null && event.getRepeatCount() == 0) {
+                        scanner.startScan();
+                    }
+                    if(event.getAction() == event.ACTION_UP && scanner != null && event.getRepeatCount() == 0) {
+                        scanner.stopScan();
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+
         if (!ProductActivity.this.isFinishing()) {
             this.weightInputProcess = true;
+            this.weightInputDialog = dialog;
             this.activeProductId = productId;
             this.activeProductInputManual = manual;
             dialog.show();

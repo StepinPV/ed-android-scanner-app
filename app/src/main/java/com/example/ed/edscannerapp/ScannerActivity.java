@@ -5,7 +5,7 @@ import android.view.KeyEvent;
 
 public abstract class ScannerActivity extends BaseActivity {
 
-    private BarcodeScanner scanner = null;
+    public BarcodeScanner scanner = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
