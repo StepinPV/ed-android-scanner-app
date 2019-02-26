@@ -138,7 +138,7 @@ public class ProductActivity extends ScannerActivity {
     @Override
     public void handleScanner(String value) {
         if (weightScanningProcess) {
-            if (value.length() != 13 || value.charAt(0) != '2') {
+            if (value.length() != 13 || value.charAt(0) != '2' || !value.substring(1, 7).equals("000000")) {
                 Toast toast = Toast.makeText(getApplicationContext(),
                         "Данный штрихкод не является весовым!", Toast.LENGTH_SHORT);
                 toast.show();
