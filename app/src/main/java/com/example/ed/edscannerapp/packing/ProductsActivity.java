@@ -73,7 +73,11 @@ public class ProductsActivity extends BaseActivity implements SwipeRefreshLayout
 
                 int packingQuantity = product.getPackingQuantity();
                 if(packingQuantity > 0){
-                    ProductsActivity.this.cancelProduct(product);
+                    if (product.hasWeight()) {
+                        ProductsActivity.this.cancelWeightProduct(product);
+                    } else {
+                        ProductsActivity.this.cancelProduct(product);
+                    }
                 }
                 else {
                     ProductsActivity.this.exit(product.getId());
@@ -153,18 +157,7 @@ public class ProductsActivity extends BaseActivity implements SwipeRefreshLayout
                         if(isValid){
                             dialog.dismiss();
                             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-
-                            manager.cancelProduct(product.getId(), quantity, new Manager.CancelProductCallback() {
-                                @Override
-                                public void success() {
-                                    adapter.notifyDataSetChanged();
-                                }
-
-                                @Override
-                                public void error(String message) {
-                                    ProductsActivity.this.showErrorMessage(message);
-                                }
-                            });
+                            callMethod(product.getId(), quantity);
                         }
                         else {
                             textView.setError("Ввведите корректное значение!");
@@ -178,6 +171,66 @@ public class ProductsActivity extends BaseActivity implements SwipeRefreshLayout
         if (!ProductsActivity.this.isFinishing()) {
             dialog.show();
         }
+    }
+
+    private void cancelWeightProduct(final Product product){
+
+        final int packingQuantity = product.getPackingQuantity();
+
+        AlertDialog.Builder builder = this.getDialogBuilder("Данный товар является весовым, будут отменены все позиции",
+                "Отменить упаковку товара?", null);
+
+        final AlertDialog dialog;
+        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        builder.setPositiveButton("Да", null).setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+            }
+        });
+
+        dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+
+                        dialog.dismiss();
+                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                        callMethod(product.getId(), packingQuantity);
+
+                    }
+                });
+            }
+        });
+
+        if (!ProductsActivity.this.isFinishing()) {
+            dialog.show();
+        }
+    }
+
+    private void callMethod(final String productId, final int quantity) {
+        manager.cancelProduct(productId, quantity, new Manager.CancelProductCallback() {
+            @Override
+            public void success() {
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void error(String message) {
+                ProductsActivity.this.showErrorMessage(message);
+            }
+        });
     }
 
     @Override

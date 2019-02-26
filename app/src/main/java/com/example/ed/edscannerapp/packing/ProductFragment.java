@@ -26,6 +26,7 @@ public class ProductFragment extends Fragment {
     private static final String PRODUCT_IMAGE = "product_image";
     private static final String PRODUCT_PACKING_QUANTITY = "product_packing_quantity";
     private static final String PRODUCT_NEEDED_QUANTITY = "product_needed_quantity";
+    private static final String PRODUCT_HAS_WEIGHT = "product_has_weight";
 
     private ImageView overlayView;
     private GifView successView;
@@ -45,6 +46,7 @@ public class ProductFragment extends Fragment {
         args.putString(PRODUCT_IMAGE, product.getImage());
         args.putInt(PRODUCT_PACKING_QUANTITY, product.getPackingQuantity());
         args.putInt(PRODUCT_NEEDED_QUANTITY, product.getNeededQuantity());
+        args.putBoolean(PRODUCT_HAS_WEIGHT, product.hasWeight());
 
         fragment.setArguments(args);
         return fragment;
@@ -74,6 +76,8 @@ public class ProductFragment extends Fragment {
                         String.valueOf(args.getInt(PRODUCT_NEEDED_QUANTITY))
                 )
         );
+
+        ((TextView) rootView.findViewById(R.id.activity_product_has_weight)).setVisibility(args.getBoolean(PRODUCT_HAS_WEIGHT) ? View.VISIBLE : View.GONE);
 
 
         overlayView = (ImageView) rootView.findViewById(R.id.activity_product_overlay);
