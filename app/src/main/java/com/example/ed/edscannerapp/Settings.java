@@ -2,66 +2,50 @@ package com.example.ed.edscannerapp;
 
 import com.example.ed.edscannerapp.server.BL;
 
+/**
+ * Класс для работы с настройками приложения
+ * Содержит в себе данные IP сервера и методы для его изменения
+ */
 public class Settings {
 
-    private static final String IP_TYPE_KEY = "settings_server_ip_type";
-    private static final String IP_KEY = "settings_server_ip_ip";
+    public static String FIRST_SERVER = "https://esh-derevenskoe.ru/";
+    public static String SECOND_SERVER = "https://backup.esh-derevenskoe.ru/";
+    private static final String SERVER_KEY = "settings_server";
 
-    private static String FIRST_SERVER_IP = "https://esh-derevenskoe.ru/";
-    private static String SECOND_SERVER_IP = "https://backup.esh-derevenskoe.ru/";
-
-    public static String getServerAddress() {
+    /**
+     * Возвращает выбранный сервер
+     * @return
+     */
+    public static String getServer() {
         Storage storage = Storage.getInstance();
-        String serverIPType = storage.getString(IP_TYPE_KEY);
+        String server = storage.getString(SERVER_KEY);
 
-        if (serverIPType == null || serverIPType.equals("1")) {
-            return FIRST_SERVER_IP;
-        }
-
-        if (serverIPType.equals("2")) {
-            return SECOND_SERVER_IP;
-        }
-
-        String serverIP = storage.getString(IP_KEY);
-
-        String address = serverIP.charAt(serverIP.length() - 1) == '/' ? serverIP : serverIP + "/";
-
-        if (address.indexOf("http") != 0) {
-            address = "https://" + address;
-        }
-
-        return address;
+        return server != null ? server : FIRST_SERVER;
     }
 
-    public static String getServerIP() {
-        Storage storage = Storage.getInstance();
-        return storage.getString(IP_KEY);
-    }
-
-    public static String getServerIPType() {
-        Storage storage = Storage.getInstance();
-
-        String serverIPType = storage.getString(IP_TYPE_KEY);
-
-        if (serverIPType == null) {
-            return "1";
-        }
-
-        return serverIPType;
-    }
-
-    public static void setServerIP(String type, String serverIP) {
+    /**
+     * Изменить сервер
+     * @return
+     */
+    public static void setServer(String server) {
         Storage storage = Storage.getInstance();
 
-        if (type == null || type.equals("1")) {
-            storage.setString(IP_TYPE_KEY, "1");
-        } else if (type.equals("2")) {
-            storage.setString(IP_TYPE_KEY, "2");
-        } else if (serverIP != null){
-            storage.setString(IP_TYPE_KEY, "3");
-            storage.setString(IP_KEY, serverIP.trim().replaceAll("\\s+",""));
-        }
+        //Удаляем лишние пробелы
+        server = server.trim().replaceAll("\\s+","");
+        //Подставляем при необходимости, слэш в конце
+        server = server.charAt(server.length() - 1) == '/' ? server : server + "/";
+        //Подставляем протокол, если его нет
+        server = server.indexOf("http") != 0 ? "https://" + server : server;
 
+        storage.setString(SERVER_KEY, server);
         BL.updateServerAPIInst();
+    }
+
+    /**
+     * Сбросить настройки сервера
+     * @return
+     */
+    public static void resetServer() {
+        setServer(FIRST_SERVER);
     }
 }

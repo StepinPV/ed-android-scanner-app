@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+/**
+ * Класс для работы с хранилищем SharedPreferences
+ */
 public class Storage {
 
     static private Storage instance;

@@ -10,7 +10,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -103,41 +102,52 @@ public class ProductsActivity extends BaseActivity implements SwipeRefreshLayout
         final int packingQuantity = product.getPackingQuantity();
         final boolean manyQuantity = packingQuantity > 1;
 
-        AlertDialog.Builder builder = this.getDialogBuilder(manyQuantity ? "Введите количество товара" : "",
-                "Отменить упаковку товара?", manyQuantity ? R.layout.barcode : null);
+        if (!manyQuantity) {
+            showConfirm("", "Отменить упаковку товара?",
+                    "Да", "Нет", new ConfirmDialogCallback() {
+                        @Override
+                        public void confirm() {
+                            callMethod(product.getId(), packingQuantity);
+                        }
 
-        final AlertDialog dialog;
-        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        @Override
+                        public void cancel() {
 
-        builder.setPositiveButton("Да", null).setNegativeButton("Нет", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-            }
-        });
+                        }
+                    });
+        } else {
+            AlertDialog.Builder builder = this.getDialogBuilder("Введите количество товара",
+                    "Отменить упаковку товара?", R.layout.barcode);
 
-        dialog = builder.create();
+            final AlertDialog dialog;
 
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            builder.setPositiveButton("Да", null).setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    toggleKeyBoard(false);
+                }
+            });
 
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
+            dialog = builder.create();
 
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
-                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onShow(DialogInterface dialogInterface) {
 
-                    @Override
-                    public void onClick(View view) {
+                    toggleKeyBoard(true);
 
-                        int quantity = 1;
-                        boolean isValid = true;
-                        TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
+                    Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                    button.setOnClickListener(new View.OnClickListener() {
 
-                        if(manyQuantity){
+                        @Override
+                        public void onClick(View view) {
+
+                            int quantity = 1;
                             int inputQuantity = 1;
+                            boolean isValid = true;
 
+                            TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
                             String input = textView.getText().toString();
 
                             if(input.equals("")){
@@ -152,24 +162,24 @@ public class ProductsActivity extends BaseActivity implements SwipeRefreshLayout
                             }
 
                             quantity = inputQuantity;
-                        }
 
-                        if(isValid){
-                            dialog.dismiss();
-                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                            callMethod(product.getId(), quantity);
-                        }
-                        else {
-                            textView.setError("Ввведите корректное значение!");
-                        }
+                            if(isValid){
+                                dialog.dismiss();
+                                toggleKeyBoard(false);
+                                callMethod(product.getId(), quantity);
+                            }
+                            else {
+                                textView.setError("Ввведите корректное значение!");
+                            }
 
-                    }
-                });
+                        }
+                    });
+                }
+            });
+
+            if (!isFinishing()) {
+                dialog.show();
             }
-        });
-
-        if (!ProductsActivity.this.isFinishing()) {
-            dialog.show();
         }
     }
 
@@ -177,46 +187,18 @@ public class ProductsActivity extends BaseActivity implements SwipeRefreshLayout
 
         final int packingQuantity = product.getPackingQuantity();
 
-        AlertDialog.Builder builder = this.getDialogBuilder("Данный товар является весовым, будут отменены все позиции",
-                "Отменить упаковку товара?", null);
-
-        final AlertDialog dialog;
-        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        builder.setPositiveButton("Да", null).setNegativeButton("Нет", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-            }
-        });
-
-        dialog = builder.create();
-
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-
-                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
+        showConfirm("Данный товар является весовым, будут отменены все позиции", "Отменить упаковку товара?",
+                "Да", "Нет", new ConfirmDialogCallback() {
+                    @Override
+                    public void confirm() {
+                        callMethod(product.getId(), packingQuantity);
+                    }
 
                     @Override
-                    public void onClick(View view) {
-
-                        dialog.dismiss();
-                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                        callMethod(product.getId(), packingQuantity);
+                    public void cancel() {
 
                     }
                 });
-            }
-        });
-
-        if (!ProductsActivity.this.isFinishing()) {
-            dialog.show();
-        }
     }
 
     private void callMethod(final String productId, final int quantity) {

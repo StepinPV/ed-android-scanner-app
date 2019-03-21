@@ -8,6 +8,10 @@ import android.widget.ImageView;
 import java.io.InputStream;
 import java.net.URL;
 
+/*
+* Загрузчик изображений
+* Загружает изображение и внедряет его в переданный view
+* */
 public class ImageLoader extends AsyncTask<String, String, Bitmap> {
     ImageView imageView;
 

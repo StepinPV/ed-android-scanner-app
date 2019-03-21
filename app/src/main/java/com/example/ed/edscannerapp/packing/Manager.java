@@ -12,6 +12,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Менеджер содержит методы для работы со сборкой заказа
+ */
 public class Manager {
 
     private static Manager instance;
@@ -32,6 +35,10 @@ public class Manager {
         instance = null;
     }
 
+    /**
+     * Получить id активного заказа
+     * @return
+     */
     public String getActiveOrderId(){
         return activeOrderId;
     }
@@ -41,26 +48,46 @@ public class Manager {
         void error(String message);
     }
 
+    /**
+     * Получить заказ по id
+     * @return
+     */
     public void getOrder(String orderId, final GetOrderCallback callback){
         AccountManager am = AccountManager.getInstance();
         this.callOrderMethod(BL.getOrder(am.getLogin(), am.getSalt(), am.getSig(), orderId), callback);
     }
 
+    /**
+     * Начать сборку заказа с переданным id
+     * @return
+     */
     public void startOrder(String orderId, final GetOrderCallback callback){
         AccountManager am = AccountManager.getInstance();
         this.callOrderMethod(BL.startOrder(am.getLogin(), am.getSalt(), am.getSig(), orderId), callback);
     }
 
+    /**
+     * Приостановить сборку заказа с переданным id
+     * @return
+     */
     public void pauseOrder(final GetOrderCallback callback){
         AccountManager am = AccountManager.getInstance();
         this.callOrderMethod(BL.pauseOrder(am.getLogin(), am.getSalt(), am.getSig(), activeOrderId), callback);
     }
 
+    /**
+     * Отменить сборку заказа с переданным id
+     * @return
+     */
     public void cancelOrder(final GetOrderCallback callback){
         AccountManager am = AccountManager.getInstance();
         this.callOrderMethod(BL.cancelOrder(am.getLogin(), am.getSalt(), am.getSig(), activeOrderId), callback);
     }
 
+    /**
+     * Завершить сборку заказа с переданным id
+     * @return
+     */
     public void completeOrder(final GetOrderCallback callback){
         AccountManager am = AccountManager.getInstance();
         this.callOrderMethod(BL.completeOrder(am.getLogin(), am.getSalt(), am.getSig(), activeOrderId), callback);
@@ -76,7 +103,10 @@ public class Manager {
 
                     if(orderResponse.isSuccessful()){
                         Order order = response.body().getOrder();
+
+                        //Устанавливаем заказ активным
                         activeOrderId = (order != null && order.getStatus().equals(Order.STATUS_ACTIVE)) ? order.getId() : null;
+
                         callback.success(order, orderResponse.getMessage());
                     }
                     else {
@@ -102,6 +132,10 @@ public class Manager {
         void error(String message);
     }
 
+    /**
+     * Получить список товаров в текущем заказе
+     * @return
+     */
     public void getProducts(final GetProductsCallback callback){
 
         if(activeOrderId == null){
@@ -127,6 +161,10 @@ public class Manager {
         });
     }
 
+    /**
+     * Получить список закешированных товаров в текущем заказе
+     * @return
+     */
     public Products getSavedProducts(){
         return products;
     }
@@ -140,6 +178,10 @@ public class Manager {
         void success();
     }
 
+    /**
+     * Подтвердить упаковку товар
+     * @return
+     */
     public void confirmProduct(final String productId, final boolean manual, final String weight, final ConfirmProductCallback callback){
 
         AccountManager am = AccountManager.getInstance();
@@ -149,7 +191,6 @@ public class Manager {
                 if (response.isSuccessful()) {
                     if(response.body().isSuccessful()){
 
-                        //TODO Охереть
                         BeforeProductsModifyCallback beforeCallback = new BeforeProductsModifyCallback() {
                             @Override
                             public void success() {
@@ -180,6 +221,10 @@ public class Manager {
         void error(String message);
     }
 
+    /**
+     * Отменить упаковку товар
+     * @return
+     */
     public void cancelProduct(final String productId, final int quantity, final CancelProductCallback callback){
 
         AccountManager am = AccountManager.getInstance();

@@ -149,7 +149,7 @@
                         android:paddingLeft="16dp"
                         android:paddingRight="16dp"
                         android:background="@android:color/holo_green_light"
-                        android:onClick="ordersButtonHandler"
+                        android:onClick="openOrdersActivity"
                         android:text="Перейти к списку заказов" />
 
                 </LinearLayout>
@@ -167,7 +167,7 @@
                     android:layout_height="80dp"
                     android:layout_margin="4dp"
                     android:background="@android:color/holo_green_light"
-                    android:onClick="scanningButtonHandler"
+                    android:onClick="openProductActivity"
                     android:visibility="gone"
                     android:text="Перейти к сканированию" />
 
@@ -187,7 +187,7 @@
                     android:layout_height="80dp"
                     android:layout_margin="4dp"
                     android:background="@android:color/holo_green_light"
-                    android:onClick="startButtonHandler"
+                    android:onClick="startOrder"
                     android:text="Начать сборку" />
 
                 <LinearLayout
@@ -202,7 +202,7 @@
                         android:layout_margin="4dp"
                         android:layout_weight="1"
                         android:background="@color/colorSecond"
-                        android:onClick="exitButtonHandler"
+                        android:onClick="exit"
                         android:text="В меню" />
 
                     <Button
@@ -212,7 +212,7 @@
                         android:layout_margin="4dp"
                         android:layout_weight="1"
                         android:background="@color/colorSecond"
-                        android:onClick="ordersButtonHandler"
+                        android:onClick="openOrdersActivity"
                         android:text="Список заказов" />
 
                     <Button

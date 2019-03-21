@@ -61,26 +61,26 @@
                     android:textSize="18dp" />
 
                 <RadioGroup
-                    android:id="@+id/server_ip_radio_group"
+                    android:id="@+id/server_radio_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
                     <RadioButton
-                        android:id="@+id/server_ip_type_1"
+                        android:id="@+id/first_server_radio"
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
                         android:layout_weight="1"
                         android:text="Основной (https://esh-derevenskoe.ru/)" />
 
                     <RadioButton
-                        android:id="@+id/server_ip_type_2"
+                        android:id="@+id/second_server_radio"
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
                         android:layout_weight="1"
                         android:text="Запасной (https://backup.esh-derevenskoe.ru/)" />
 
                     <RadioButton
-                        android:id="@+id/server_ip_type_3"
+                        android:id="@+id/custom_server_radio"
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
                         android:layout_weight="1"
@@ -89,7 +89,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/server_ip_additional"
+                android:id="@+id/custom_server"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
@@ -110,7 +110,7 @@
                     android:textSize="18dp" />
 
                 <EditText
-                    android:id="@+id/server_ip_ip_value"
+                    android:id="@+id/custom_server_field"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">

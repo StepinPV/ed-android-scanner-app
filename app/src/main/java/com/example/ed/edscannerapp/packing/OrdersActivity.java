@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +29,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Экран списка заказов
+ */
 public class OrdersActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -42,9 +44,9 @@ public class OrdersActivity extends BaseActivity implements SwipeRefreshLayout.O
         setContentView(R.layout.activity_orders);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.ordersRefresh);
-
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
+        // Инициализируем информацию о пользователе
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
             @Override
             public void success(User user) {
@@ -59,37 +61,36 @@ public class OrdersActivity extends BaseActivity implements SwipeRefreshLayout.O
         TextView emptyText = (TextView) findViewById(R.id.orders_no_orders_message);
         listView.setEmptyView(emptyText);
 
+        //Подписываемся на клик по заказу
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Order order = (Order) parent.getItemAtPosition(position);
 
+                //Заказы в процессе сборки нас не интересуют
                 if(order.getStatus().equals(Order.STATUS_ACTIVE)){
                     return;
                 }
 
+                //Закрываем список и возвращаем id заказа
                 OrdersActivity.this.exit(order.getId());
             }
 
         });
 
         AccountManager am = AccountManager.getInstance();
+        //Загружаем список заказов и инициализируем список
         BL.getOrders(am.getLogin(), am.getSalt(), am.getSig()).enqueue(new Callback<OrdersResponse>() {
             @Override
             public void onResponse(Call<OrdersResponse> call, Response<OrdersResponse> response) {
                 if (response.isSuccessful()) {
-                    OrdersActivity.this.updateData(response.body().getOrders().getOrderList());
-                } else {
-                    //TODO
-                    Log.d("123", "response code " + response.code());
+                    updateData(response.body().getOrders().getOrderList());
                 }
             }
 
             @Override
             public void onFailure(Call<OrdersResponse> call, Throwable t) {
-                //TODO
-                Log.d("123", "failure " + t);
             }
         });
     }
@@ -98,6 +99,10 @@ public class OrdersActivity extends BaseActivity implements SwipeRefreshLayout.O
         this.exit("");
     }
 
+    /**
+     * Закрыть экран и вернуть из него id заказа
+     * @param orderId
+     */
     private void exit(String orderId){
         Intent intent = new Intent();
         intent.putExtra("order_id", orderId);
@@ -105,6 +110,10 @@ public class OrdersActivity extends BaseActivity implements SwipeRefreshLayout.O
         finish();
     }
 
+    /**
+     * Обновить список
+     * @param orders
+     */
     public void updateData(List<Order> orders){
         boolean hasOrders = orders != null;
 
@@ -130,23 +139,21 @@ public class OrdersActivity extends BaseActivity implements SwipeRefreshLayout.O
             @Override
             public void onResponse(Call<OrdersResponse> call, Response<OrdersResponse> response) {
                 if (response.isSuccessful()) {
-                    OrdersActivity.this.updateData(response.body().getOrders().getOrderList());
+                    updateData(response.body().getOrders().getOrderList());
                     mSwipeRefreshLayout.setRefreshing(false);
-                } else {
-                    //TODO
-                    Log.d("123", "response code " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<OrdersResponse> call, Throwable t) {
-                //TODO
-                Log.d("123", "failure " + t);
             }
         });
 
     }
 
+    /**
+     * Адаптер для работы c listView
+     */
     class OrdersListAdapter extends BaseAdapter implements ListAdapter {
 
         private Context context;

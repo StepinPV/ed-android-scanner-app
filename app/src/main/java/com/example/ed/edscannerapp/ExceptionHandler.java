@@ -12,6 +12,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Обработчик ошибок. Пишет ошибки в системный файл
+ * Читать здесь https://habr.com/ru/post/129582/
+ */
 public final class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 
     private final DateFormat formatter = new SimpleDateFormat("dd.MM.yy HH:mm");

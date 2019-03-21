@@ -39,7 +39,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="16dp"
                 android:textSize="16dp"
-                android:text="V 0.33" />
+                android:text="V 0.35" />
 
         </LinearLayout>
 
@@ -50,7 +50,7 @@
             android:layout_weight="1"
             android:background="@color/colorFirst"
             android:elevation="0dp"
-            android:onClick="openAssemblyActivity"
+            android:onClick="openOrderActivity"
             android:text="СБОРКА"
             android:textColor="@android:color/background_light"
             android:textSize="24sp" />
@@ -84,7 +84,7 @@
             android:text="Проверить товар"
             android:textColor="@android:color/background_light"
             android:textSize="24sp"
-            android:onClick="checkProduct"/>
+            android:onClick="openCheckActivity"/>
 
         <Button
             android:layout_width="match_parent"
@@ -95,7 +95,7 @@
             android:text="Настройки"
             android:textColor="@android:color/background_light"
             android:textSize="24sp"
-            android:onClick="openSettings"/>
+            android:onClick="openSettingsActivity"/>
 
 
         <Button

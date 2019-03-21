@@ -1,14 +1,7 @@
 package com.example.ed.edscannerapp;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.media.AudioManager;
-import android.media.SoundPool;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,10 +15,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Экран определения товара по штрихкоду
+ * Разметка экрана хранится в файле res/drawable/activity_check
+ */
 public class CheckActivity extends ScannerActivity {
 
-    private SoundPool soundPool;
-    private int soundID;
     private boolean isFetch = false;
 
     @Override
@@ -37,9 +32,6 @@ public class CheckActivity extends ScannerActivity {
     }
 
     private void init(){
-        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
-        soundID = soundPool.load(this, R.raw.scan,1);
-
         initScanner();
 
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
@@ -64,39 +56,16 @@ public class CheckActivity extends ScannerActivity {
     }
 
     public void barcodeButtonHandler(View w){
-        AlertDialog.Builder builder = this.getDialogBuilder("Введите штрих код товара в поле ввода",
-                "Ручной ввод штрихкода", R.layout.barcode);
+        showNumberInputDialog("Введите штрих код товара в поле ввода", "Ручной ввод штрихкода",
+                null, null, new NumberInputDialogCallback() {
+                    @Override
+                    public void confirm(String value) {
+                        checkProduct(value);
+                    }
 
-        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
-                String barcode = textView.getText().toString();
-                checkProduct(barcode);
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-            }
-        }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-            }
-        });
-
-        if (!CheckActivity.this.isFinishing()) {
-            dialog.show();
-        }
+                    @Override
+                    public void cancel() {}
+                });
     }
 
     public void checkProduct(final String barcode){
@@ -111,17 +80,16 @@ public class CheckActivity extends ScannerActivity {
                 if (response.isSuccessful()) {
                     Product product = response.body().getProduct();
 
+                    //Продукт по считанному штрихкоду не найден, включаем вибрацию
                     if(product == null){
-                        ((Vibrator)getSystemService(CheckActivity.VIBRATOR_SERVICE)).vibrate(300);
+                        playVibrate();
                     }
                     else {
-                        soundPool.play(soundID, 1, 1,1,0, 1f);
+                        playSound();
                     }
+
                     updateData(product, barcode);
 
-                }
-                else {
-                    //updateData(null, barcode);
                 }
 
                 CheckActivity.this.isFetch = false;
@@ -129,7 +97,6 @@ public class CheckActivity extends ScannerActivity {
 
             @Override
             public void onFailure(Call<CheckResponse> call, Throwable t) {
-                //updateData(null, barcode);
                 CheckActivity.this.isFetch = false;
             }
         });
@@ -164,6 +131,9 @@ public class CheckActivity extends ScannerActivity {
         }
     }
 
+    /*
+    * см ScannerActivity
+    * */
     @Override
     public boolean needScanning() {
         return !this.isFetch;

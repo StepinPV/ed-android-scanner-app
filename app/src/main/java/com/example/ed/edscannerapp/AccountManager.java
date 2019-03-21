@@ -12,10 +12,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Менеджер по работе с пользователем
+ * Хранит информацию о пользователе
+ */
 public class AccountManager {
     static private AccountManager instance;
     private Storage storage;
 
+    //Ключи, для хранения данных в storage
     private final String LOGIN_KEY = "account_manager_login";
     private final String PASSWORD_KEY = "account_manager_password";
     private final String SALT_KEY = "account_manager_salt";
@@ -50,7 +55,7 @@ public class AccountManager {
         return instance;
     }
 
-    public boolean isLogined(){
+    public boolean isAuthorized(){
         return login != null;
     }
 
@@ -71,6 +76,12 @@ public class AccountManager {
         void error(String message);
     }
 
+    /**
+     * Функция авторизации
+     * @param login
+     * @param password
+     * @param callback
+     */
     public void login(final String login, final String password, final LoginCallback callback){
 
         Random rand = new Random();
@@ -87,7 +98,11 @@ public class AccountManager {
                     VerificationResponse verification = response.body();
 
                     if(verification.isSuccessful()){
-                        saveData(login, password, salt, sig);
+                        setLogin(login);
+                        setPassword(password);
+                        setSalt(salt);
+                        setSig(sig);
+
                         callback.success();
                     }
                     else {
@@ -110,6 +125,10 @@ public class AccountManager {
         void success(User user);
     }
 
+    /**
+     * Получить информацию о авторизованном пользователе.
+     * @param callback
+     */
     public void getUser(final UserCallback callback){
 
         if(this.user != null) {
@@ -123,8 +142,12 @@ public class AccountManager {
                     InfoResponse info = response.body();
 
                     if(info.isSuccessful()){
-                        saveUser(info.getUser());
-                        callback.success(info.getUser());
+                        User user = info.getUser();
+
+                        //Сохраняем пользователя в кэш
+                        AccountManager.this.user = user;
+
+                        callback.success(user);
                     }
                     else {
                         callback.success(null);
@@ -143,18 +166,10 @@ public class AccountManager {
     }
 
     public void logout(){
-        saveData(null, null, null, null);
-    }
-
-    private void saveUser(User user){
-        this.user = user;
-    }
-
-    private void saveData(String login, String password, String salt, String sig){
-        this.setLogin(login);
-        this.setPassword(password);
-        this.setSalt(salt);
-        this.setSig(sig);
+        this.setLogin(null);
+        this.setPassword(null);
+        this.setSalt(null);
+        this.setSig(null);
     }
 
     private void setLogin(String login){
@@ -177,8 +192,7 @@ public class AccountManager {
         storage.setString(PASSWORD_KEY, password);
     }
 
-    private String sha256(String val) {
-        String password = val;
+    private String sha256(String value) {
         MessageDigest md = null;
 
         try {
@@ -188,7 +202,7 @@ public class AccountManager {
             e.printStackTrace();
         }
 
-        md.update(password.getBytes());
+        md.update(value.getBytes());
 
         byte byteData[] = md.digest();
 

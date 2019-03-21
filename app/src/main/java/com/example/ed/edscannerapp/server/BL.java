@@ -15,10 +15,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class BL {
 
-    static private ServerAPI EP = getServerAPIInst(Settings.getServerAddress());
+    static private ServerAPI EP = getServerAPIInst(Settings.getServer());
 
     static public void updateServerAPIInst() {
-        EP = getServerAPIInst(Settings.getServerAddress());
+        EP = getServerAPIInst(Settings.getServer());
     }
 
     static private ServerAPI getServerAPIInst(String baseUrl) {

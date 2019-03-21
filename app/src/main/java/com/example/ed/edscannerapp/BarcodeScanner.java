@@ -5,6 +5,9 @@ import android.os.AsyncTask;
 
 import com.zebra.adc.decoder.Barcode2DWithSoft;
 
+/**
+ * Модуль для работы со сканнером
+ */
 public class BarcodeScanner {
 
     private Barcode2DWithSoft barcode2DWithSoft;
@@ -45,25 +48,25 @@ public class BarcodeScanner {
         }
     }
 
-    public Barcode2DWithSoft.ScanCallback scanBack = new Barcode2DWithSoft.ScanCallback(){
+    private Barcode2DWithSoft.ScanCallback scanBack = new Barcode2DWithSoft.ScanCallback(){
         @Override
         public void onScanComplete(int i, int length, byte[] bytes) {
             if (length < 1) {
                 if (length == -1) {
-                    //Scan cancel
+                    // Scan cancel
                 } else if (length == 0) {
-                    //Scan TimeOut
+                    // Scan TimeOut
                 } else {
-                    //Scan fail
+                    // Scan fail
                 }
-            }else{
+            } else{
                 String barCode = new String(bytes, 0, length);
                 scanCallback.success(barCode);
             }
         }
     };
 
-    public class InitTask extends AsyncTask<String, Integer, Boolean> {
+    private class InitTask extends AsyncTask<String, Integer, Boolean> {
 
         @Override
         protected Boolean doInBackground(String... params) {
@@ -88,6 +91,7 @@ public class BarcodeScanner {
         @Override
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
+
             if(result){
                 barcode2DWithSoft.setParameter(324, 1);
                 barcode2DWithSoft.setParameter(300, 0); // Snapshot Aiming
@@ -98,8 +102,6 @@ public class BarcodeScanner {
                 barcode2DWithSoft.setParameter(22, 0);
                 barcode2DWithSoft.setParameter(23, 55);
 
-            }else{
-                //TODO
             }
         }
 

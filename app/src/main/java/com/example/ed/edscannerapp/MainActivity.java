@@ -1,22 +1,21 @@
 package com.example.ed.edscannerapp;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.os.Bundle;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.example.ed.edscannerapp.entities.User;
 
 import com.example.ed.edscannerapp.packing.OrderActivity;
 
+/**
+ * Экран главной страницы (разводящей)
+ */
 public class MainActivity extends BaseActivity {
 
     static public final int LOGIN_ACTIVITY_CODE = 3;
@@ -26,15 +25,13 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        checkLogined();
-
-        Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.inContext(MainActivity.this));
+        checkAuthorized();
     }
 
-    private void checkLogined(){
+    private void checkAuthorized(){
         AccountManager accountManager = AccountManager.getInstance();
 
-        if(accountManager.isLogined()){
+        if(accountManager.isAuthorized()){
             setContentView(R.layout.activity_main);
             updateView();
         }
@@ -53,25 +50,18 @@ public class MainActivity extends BaseActivity {
                     TextView userNameView = (TextView) findViewById(R.id.main_user_name);
                     userNameView.setText(user.getFullName());
                 } else {
-                    AlertDialog.Builder builder = MainActivity.this.getDialogBuilder("Отсутствует соединение с сервером", "", null);
+                    showConfirm("Отсутствует соединение с сервером", "",
+                            "Перейти в настройки", "Повторить", new ConfirmDialogCallback() {
+                                @Override
+                                public void confirm() {
+                                    openSettingsActivity();
+                                }
 
-                    builder.setPositiveButton("Перейти в настройки", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            MainActivity.this.openSettings();
-                        }
-                    });
-
-                    builder.setNegativeButton("Повторить", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            MainActivity.this.updateView();
-                        }
-                    });
-
-                    if (!MainActivity.this.isFinishing()) {
-                        builder.create().show();
-                    }
+                                @Override
+                                public void cancel() {
+                                    updateView();
+                                }
+                            });
                 }
             }
         });
@@ -79,79 +69,55 @@ public class MainActivity extends BaseActivity {
         checkPermission();
     }
 
-    public void openAssemblyActivity(View w){
+    public void openOrderActivity(View w){
         startActivity(new Intent(this, OrderActivity.class));
     }
 
-    public void logout(View w){
-
-        AlertDialog.Builder builder = this.getDialogBuilder("Вы действительно хотите выйти?", "", null);
-
-        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                AccountManager.getInstance().logout();
-                openLoginActivity();
-            }
-        }).setNegativeButton("Отмена", null);
-
-        if (!MainActivity.this.isFinishing()) {
-            builder.create().show();
-        }
-    }
-
-    public void checkProduct(View w){
+    public void openCheckActivity(View w){
         startActivity(new Intent(this, CheckActivity.class));
-    }
-
-    public void openSettings() {
-        AlertDialog.Builder builder = this.getDialogBuilder("Введите код доступа", "", R.layout.barcode);
-
-        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
-                String barcode = textView.getText().toString();
-
-                if(barcode.equals("2236")) {
-                    startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), SETTINGS_ACTIVITY_CODE);
-                } else {
-                    MainActivity.this.updateView();
-                    MainActivity.this.showErrorMessage("Неверный код доступа");
-                }
-
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-            }
-        }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                MainActivity.this.updateView();
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-            }
-        });
-
-        if (!MainActivity.this.isFinishing()) {
-            dialog.show();
-        }
-    }
-
-    public void openSettings(View w){
-        this.openSettings();
     }
 
     private void openLoginActivity(){
         startActivityForResult(new Intent(this, LoginActivity.class), LOGIN_ACTIVITY_CODE);
+    }
+
+    public void openSettingsActivity(View w){
+        this.openSettingsActivity();
+    }
+
+    public void openSettingsActivity() {
+        showNumberInputDialog("Введите код доступа", "",
+                null, null, new NumberInputDialogCallback() {
+                    @Override
+                    public void confirm(String value) {
+                        if(value.equals(getString(R.string.settings_code))) {
+                            startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), SETTINGS_ACTIVITY_CODE);
+                        } else {
+                            updateView();
+                            showErrorMessage("Неверный код доступа");
+                        }
+                    }
+
+                    @Override
+                    public void cancel() {}
+                });
+    }
+
+    public void logout(View w){
+
+        showConfirm("Вы действительно хотите выйти?", "",
+                "Подтвердить", "Отмена", new ConfirmDialogCallback() {
+                    @Override
+                    public void confirm() {
+                        AccountManager.getInstance().logout();
+                        openLoginActivity();
+                    }
+
+                    @Override
+                    public void cancel() {
+                        updateView();
+                    }
+                });
     }
 
     private void checkPermission(){
@@ -173,7 +139,7 @@ public class MainActivity extends BaseActivity {
         switch(requestCode){
 
             case LOGIN_ACTIVITY_CODE:
-                checkLogined();
+                checkAuthorized();
                 break;
 
             case SETTINGS_ACTIVITY_CODE:

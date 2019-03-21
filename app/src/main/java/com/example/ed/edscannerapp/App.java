@@ -1,6 +1,7 @@
 package com.example.ed.edscannerapp;
 
 import android.app.Application;
+import android.content.Context;
 
 public class App extends Application {
 
@@ -8,7 +9,12 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Storage.initInstance(this.getApplicationContext());
+        Context appContext = this.getApplicationContext();
+
+        Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.inContext(appContext));
+
+        //Инстанцируем синглтоны
+        Storage.initInstance(appContext);
         AccountManager.initInstance();
     }
 

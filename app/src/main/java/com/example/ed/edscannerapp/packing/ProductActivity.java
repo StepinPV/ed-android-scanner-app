@@ -2,12 +2,8 @@ package com.example.ed.edscannerapp.packing;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.SoundPool;
-import android.os.Vibrator;
 
 import com.example.ed.edscannerapp.CustomViewPager;
 import android.os.Bundle;
@@ -15,13 +11,11 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.KeyEvent;
 import android.view.View;
 
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.ed.edscannerapp.AccountManager;
 import com.example.ed.edscannerapp.CheckActivity;
@@ -46,8 +40,6 @@ public class ProductActivity extends ScannerActivity {
     private Manager manager = Manager.getInstance();
     private int currentPagePosition = 0;
     private boolean hasBarcode = false;
-    private SoundPool soundPool;
-    private int soundID;
     private boolean confirmingProcess;
 
     private String activeProductId;
@@ -60,54 +52,51 @@ public class ProductActivity extends ScannerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.initView();
+
+        this.loadProducts();
     }
 
-    private void initView(){
+    private void loadProducts(){
         manager.getProducts(new Manager.GetProductsCallback(){
 
             @Override
             public void success(Products products){
                 setContentView(R.layout.activity_product);
-                init();
+                init(products);
             };
 
             @Override
             public void error(String message){
-                AlertDialog.Builder builder = ProductActivity.this.getDialogBuilder("Отсутствует соединение с сервером", "", null);
+                showConfirm("Отсутствует соединение с сервером", "",
+                        "Повторить", "Отмена", new ConfirmDialogCallback() {
+                            @Override
+                            public void confirm() {
+                                loadProducts();
+                            }
 
-                builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        ProductActivity.this.initView();
-                    }
-                });
-
-                if (!ProductActivity.this.isFinishing()) {
-                    builder.create().show();
-                }
+                            @Override
+                            public void cancel() {
+                                exit();
+                            }
+                        });
             };
 
         });
     }
 
-    private void init(){
+    private void init(Products products){
         viewPager = (CustomViewPager) findViewById(R.id.activity_product_viewpager);
         pagerAdapter = new ProductsPagerAdapter(getSupportFragmentManager());
 
-        Products products = manager.getSavedProducts();
-
         if (products != null) {
-            pagerAdapter.setProducts(manager.getSavedProducts());
+            pagerAdapter.setProducts(products);
         }
 
         viewPager.setAdapter(pagerAdapter);
 
-        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
-        soundID = soundPool.load(this, R.raw.scan,1);
-
         this.initScanner();
 
+        //Заполняем информацию о пользователе
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
             @Override
             public void success(User user) {
@@ -127,11 +116,12 @@ public class ProductActivity extends ScannerActivity {
 
             public void onPageSelected(int position) {
                 currentPagePosition = position;
-                ProductActivity.this.updatePositionCounter();
-                ProductActivity.this.updateButtons();
+                updatePositionCounter();
+                updateButtons();
             }
         });
 
+        //Обновляем компоненты на экране
         updateData();
     }
 
@@ -139,14 +129,8 @@ public class ProductActivity extends ScannerActivity {
     public void handleScanner(String value) {
         if (weightScanningProcess) {
             if (value.length() != 13 || value.charAt(0) != '2' || !value.substring(1, 7).equals("000000")) {
-                Toast toast = Toast.makeText(getApplicationContext(),
-                        "Данный штрихкод не является весовым!", Toast.LENGTH_SHORT);
-                toast.show();
-
-                Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                if (vibrator.hasVibrator()) {
-                    vibrator.vibrate(300);
-                }
+                showNotification("Данный штрихкод не является весовым!");
+                playVibrate();
 
                 weightScanningCount += 1;
 
@@ -161,7 +145,7 @@ public class ProductActivity extends ScannerActivity {
 
             successBarcode(this.activeProductId, this.activeProductInputManual, weight);
 
-            soundPool.play(soundID, 1, 1,1,0, 1f);
+            playSound();
             weightScanningDialog.cancel();
 
         } else {
@@ -234,44 +218,21 @@ public class ProductActivity extends ScannerActivity {
             return;
         }
 
-        AlertDialog.Builder builder = this.getDialogBuilder("Введите штрих код товара в поле ввода",
-                "Ручной ввод штрихкода", R.layout.barcode);
+        showNumberInputDialog("Введите штрих код товара в поле ввода", "Ручной ввод штрихкода",
+                null, null, new NumberInputDialogCallback() {
+                    @Override
+                    public void confirm(String value) {
+                        checkProduct(false, value, true);
+                    }
 
-        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
-                String barcode = textView.getText().toString();
-                checkProduct(false, barcode, true);
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-            }
-        }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-            }
-        });
-
-        if (!ProductActivity.this.isFinishing()) {
-            dialog.show();
-        }
+                    @Override
+                    public void cancel() {}
+                });
     }
 
     public void scanWeight(final String productId, final boolean manual) {
         AlertDialog.Builder builder = this.getDialogBuilder(
-                "Номер штрихкода должен быть в формате: 2 XXXXXX XXXXXX",
+                "Номер штрихкода должен быть в формате: 2 000000 XXXXXX",
                 "Отсканируйте вес товара", R.layout.scanning_message);
 
         AlertDialog dialog = builder.create();
@@ -325,35 +286,29 @@ public class ProductActivity extends ScannerActivity {
         AlertDialog.Builder builder = this.getDialogBuilder("Формат ввода: x.xxx (кг)",
                 "Введите вес товара", R.layout.weight);
 
-        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
         builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
+                TextView textView = ((AlertDialog) dialog).findViewById(R.id.weight_dialog_text);
                 String weight = textView.getText().toString();
 
                 if ((weight.matches("^\\d\\d\\.\\d\\d\\d$") || weight.matches("^\\d\\.\\d\\d\\d$")) &&
                         !weight.equals("0.000") && !weight.equals("00.000")) {
                     successBarcode(activeProductId, activeProductInputManual, weight);
 
-                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                    toggleKeyBoard(false);
                     ProductActivity.this.weightScanningDialog.cancel();
                 } else {
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "Вес должен быть в формате x.xxx или xx.xxx", Toast.LENGTH_SHORT);
-                    toast.show();
-                    Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                    if (vibrator.hasVibrator()) {
-                        vibrator.vibrate(300);
-                    }
+                    showNotification("Вес должен быть в формате x.xxx или xx.xxx");
+                    playVibrate();
+
                     ProductActivity.this.inputWeight();
                 }
             }
         }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                toggleKeyBoard(false);
             }
         });
 
@@ -363,7 +318,7 @@ public class ProductActivity extends ScannerActivity {
 
             @Override
             public void onShow(DialogInterface dialogInterface) {
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                toggleKeyBoard(true);
             }
         });
 
@@ -377,19 +332,18 @@ public class ProductActivity extends ScannerActivity {
             return;
         }
 
-        AlertDialog.Builder builder = this.getDialogBuilder("Вы действительно хотите подтвердить товар вручную?",
-                "Ручное подтверждение товара", null);
+        showConfirm("Вы действительно хотите подтвердить товар вручную?", "Ручное подтверждение товара",
+                "Подтвердить", "Отмена", new ConfirmDialogCallback() {
+                    @Override
+                    public void confirm() {
+                        checkProduct(true, null, false);
+                    }
 
-        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                checkProduct(true, null, false);
-            }
-        }).setNegativeButton("Отмена", null);
+                    @Override
+                    public void cancel() {
 
-        if (!ProductActivity.this.isFinishing()) {
-            builder.create().show();
-        }
+                    }
+                });
     }
 
     public void checkProduct(boolean manual, String barcode, boolean manualInputBarcode){
@@ -409,7 +363,7 @@ public class ProductActivity extends ScannerActivity {
         }
         else {
             if(currentProduct.checkBarcode(barcode)){
-                soundPool.play(soundID, 1, 1,1,0, 1f);
+                playSound();
 
                 if (currentProduct.hasWeight()) {
                     scanWeight(currentProduct.getId(), false);
@@ -418,10 +372,7 @@ public class ProductActivity extends ScannerActivity {
                 }
             }
             else {
-                Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                if (vibrator.hasVibrator()) {
-                    vibrator.vibrate(300);
-                }
+                playVibrate();
 
                 //TODO Надо в колбеке
                 if(manualInputBarcode){
@@ -482,6 +433,9 @@ public class ProductActivity extends ScannerActivity {
         });
     }
 
+    /**
+     * Обновить компоненты на экране
+     */
     public void updateData(){
 
         Products products = manager.getSavedProducts();

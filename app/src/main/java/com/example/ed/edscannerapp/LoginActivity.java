@@ -1,80 +1,34 @@
 package com.example.ed.edscannerapp;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TextView;
 
+/*
+* Окно авторизации
+* */
 public class LoginActivity extends BaseActivity {
-
-    private EditText loginText;
-    private EditText passwordText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        loginText = (EditText) findViewById(R.id.login_login);
-        passwordText = (EditText) findViewById(R.id.login_password);
-
-        Settings.setServerIP("1", null);
+        // При первом открытии окна авторизации,
+        // сбрасываем значение адреса сервера на значение по умолчанию
+        Settings.resetServer();
     }
 
     public void login(View w){
-        if(checkValidation()){
+        if(validate()){
             this.login();
         }
     }
 
-    public void openSettings(View w){
-        AlertDialog.Builder builder = this.getDialogBuilder("Введите код доступа", "", R.layout.barcode);
-
-        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                TextView textView = ((AlertDialog) dialog).findViewById(R.id.activity_product_barcode);
-                String barcode = textView.getText().toString();
-
-                if(barcode.equals("2236")) {
-                    startActivity(new Intent(LoginActivity.this, SettingsActivity.class));
-                } else {
-                    LoginActivity.this.showErrorMessage("Неверный код доступа");
-                }
-
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-            }
-        }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-            }
-        });
-
-        if (!LoginActivity.this.isFinishing()) {
-            dialog.show();
-        }
-    }
-
     private void login(){
-        String login = loginText.getText().toString();
-        String password = passwordText.getText().toString();
+        String login = ((EditText) findViewById(R.id.login_login)).getText().toString();
+        String password = ((EditText) findViewById(R.id.login_password)).getText().toString();
 
         AccountManager accountManager = AccountManager.getInstance();
 
@@ -87,17 +41,33 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void error(String message){
-                LoginActivity.this.showErrorMessage(message);
+                showErrorMessage(message);
             };
 
         });
     }
 
-    private void exit(){
-        finish();
+    public void openSettings(View w){
+        showNumberInputDialog("Введите код доступа", "",
+                null, null, new NumberInputDialogCallback() {
+                    @Override
+                    public void confirm(String value) {
+                        if(value.equals(getString(R.string.settings_code))) {
+                            startActivity(new Intent(LoginActivity.this, SettingsActivity.class));
+                        } else {
+                            showErrorMessage("Неверный код доступа");
+                        }
+                    }
+
+                    @Override
+                    public void cancel() {}
+                });
     }
 
-    private boolean checkValidation(){
+    private boolean validate(){
+        EditText loginText = ((EditText) findViewById(R.id.login_login));
+        EditText passwordText = ((EditText) findViewById(R.id.login_password));
+
         if(loginText.getText().toString().isEmpty()){
             loginText.setError("Поле не может быть пустым!");
             return false;

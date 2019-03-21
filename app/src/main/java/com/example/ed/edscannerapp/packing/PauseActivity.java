@@ -24,6 +24,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Экран заморозки товара
+ */
 public class PauseActivity extends BaseActivity {
 
     Manager manager = Manager.getInstance();
@@ -39,6 +42,7 @@ public class PauseActivity extends BaseActivity {
 
         this.initList(orderId);
 
+        //Вставляем в шапку информацию о пользователе
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
             @Override
             public void success(User user) {
@@ -60,6 +64,11 @@ public class PauseActivity extends BaseActivity {
         finish();
     }
 
+    /**
+     * Заморозить заказ
+     * Обработчик кнопки
+     * @param w
+     */
     public void confirm(View w) {
         confirming = true;
         manager.pauseOrder(new Manager.GetOrderCallback(){
@@ -76,6 +85,10 @@ public class PauseActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Инициализировать список товарами из заказа
+     * @param orderId
+     */
     public void initList(String orderId){
 
         AccountManager am = AccountManager.getInstance();
@@ -88,19 +101,19 @@ public class PauseActivity extends BaseActivity {
                     ListView listView = (ListView) findViewById(R.id.productListView);
                     adapter = new ProductsListAdapter(PauseActivity.this, products);
                     listView.setAdapter(adapter);
-                } else {
-                    //TODO
                 }
             }
 
             @Override
             public void onFailure(Call<ProductsResponse> call, Throwable t) {
-                //TODO
             }
         });
 
     }
 
+    /**
+     * Адаптер для работы c listView
+     */
     class ProductsListAdapter extends BaseAdapter implements ListAdapter {
 
         private Context context;

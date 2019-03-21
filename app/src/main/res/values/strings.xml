@@ -9,4 +9,6 @@
     <string name="order_status_active"></string>
     <string name="order_status_default"></string>
     <string name="pause_order_id">Процесс заморозки заказа №%s </string>
+
+    <string name="settings_code">2236</string>
 </resources>

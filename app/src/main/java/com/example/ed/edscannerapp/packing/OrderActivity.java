@@ -1,17 +1,12 @@
 package com.example.ed.edscannerapp.packing;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.SoundPool;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.ed.edscannerapp.AccountManager;
 import com.example.ed.edscannerapp.R;
@@ -19,87 +14,81 @@ import com.example.ed.edscannerapp.ScannerActivity;
 import com.example.ed.edscannerapp.entities.Order;
 import com.example.ed.edscannerapp.entities.User;
 
+/**
+ * Экран выбора заказа
+ */
 public class OrderActivity extends ScannerActivity {
 
     static public final int PRODUCT_ACTIVITY_CODE = 1;
     static public final int ORDERS_ACTIVITY_CODE = 2;
     static public final int PAUSE_ACTIVITY_CODE = 3;
-    private String selectedOrderId;
-    private String selectOrderStatus;
-    private SoundPool soundPool;
-    private int soundID;
+    
+    private Order selectedOrder;
+    private boolean viewInitialized = false;
 
+    //Менеджер для работы со сборкой заказа
     Manager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         manager = Manager.getInstance();
-        this.initView();
-
-        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
-        soundID = soundPool.load(this, R.raw.scan,1);
+        
+        //Загружаем заказ, сервер подберет необходимый
+        loadOrderById("");
     }
 
-    private void initView(){
-        manager.getOrder("", new Manager.GetOrderCallback(){
-            @Override
-            public void success(Order order, String message){
-                setContentView(R.layout.activity_order);
-                updateOrder(order, message);
-            };
-            @Override
-            public void error(String message){
-                AlertDialog.Builder builder = OrderActivity.this.getDialogBuilder("Отсутствует соединение с сервером", "", null);
-
-                builder.setPositiveButton("Повторить", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        OrderActivity.this.initView();
-                    }
-                });
-
-                if (!OrderActivity.this.isFinishing()) {
-                    builder.create().show();
-                }
-            };
-        });
-    }
-
-    private void updateOrderById(final String orderId){
+    /**
+     * Загрузить заказ с переданным id
+     * @param orderId
+     */
+    private void loadOrderById(final String orderId){
         manager.getOrder(orderId, new Manager.GetOrderCallback(){
             @Override
             public void success(Order order, String message){
+                if (!viewInitialized) {
+                    setContentView(R.layout.activity_order);
+                    viewInitialized = true;
+                }
+                
                 updateOrder(order, message);
             };
+
             @Override
             public void error(String message){
-                if(!OrderActivity.this.isFinishing()) {
-                    AlertDialog.Builder builder = OrderActivity.this.getDialogBuilder(message, "", null);
-
-                    builder.setPositiveButton("ОК", null);
-
-                    if (!OrderActivity.this.isFinishing()) {
-                        builder.create().show();
+                showConfirm(message, "Ошибка загрузки заказа!", "Повторить", "Отмена", new ConfirmDialogCallback() {
+                    @Override
+                    public void confirm() {
+                        loadOrderById(orderId);
                     }
-                }
+
+                    @Override
+                    public void cancel() {
+                        exit();
+                    }
+                });
             };
         });
     }
 
+    /**
+     * Обновляет экран и сканер
+     * @param order
+     * @param message
+     */
     private void updateOrder(Order order, String message){
-        updateComponents(order, message);
-
-        if(order != null){
-            selectedOrderId = order.getId();
-            selectOrderStatus = order.getStatus();
-        }
-        this.updateScanner(order);
+        selectedOrder = order;
+        updateComponents(message);
+        updateScanner();
     }
 
-    private void updateScanner(Order order) {
-        if(order != null) {
-            switch(order.getStatus()){
+    /**
+     * Обновить сканер в зависимости от выбранного заказа
+     */
+    private void updateScanner() {
+        if(selectedOrder != null) {
+            switch(selectedOrder.getStatus()){
                 case Order.STATUS_UNSTARTED:
                 case Order.STATUS_PAUSED:
                 case Order.STATUS_PARTIAL:
@@ -114,112 +103,115 @@ public class OrderActivity extends ScannerActivity {
         }
     }
 
-    public void exitButtonHandler(View w){
+    public void exit(View w){
+        exit();
+    }
+
+    private void exit() {
         this.destroyScanner();
         finish();
     }
 
-    public void startButtonHandler(View w){
+    public void startOrder(View w){
         this.startOrder();
     }
 
+    /**
+     * Начать собирать выбранный заказ
+     */
     private void startOrder() {
-        manager.startOrder(selectedOrderId, new Manager.GetOrderCallback(){
+        manager.startOrder(selectedOrder.getId(), new Manager.GetOrderCallback(){
             @Override
             public void success(Order order, String message){
-                OrderActivity.this.openScanningActivity();
+                openProductActivity();
             };
             @Override
             public void error(String message){
-                //TODO
-                AlertDialog.Builder builder = OrderActivity.this.getDialogBuilder(message,
-                        "", null);
 
-                builder.setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                showConfirm(message, "Ошибка запуска сборки!", "Повторить", "Отмена", new ConfirmDialogCallback() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        manager.getOrder("", new Manager.GetOrderCallback(){
-                            @Override
-                            public void success(Order order, String message){
-                                updateOrder(order, message);
-                            };
-                            @Override
-                            public void error(String message){
-                                OrderActivity.this.showErrorMessage(message);
-                            };
-                        });
+                    public void confirm() {
+                        startOrder();
+                    }
+
+                    @Override
+                    public void cancel() {
+                        loadOrderById("");
                     }
                 });
-
-                if (!OrderActivity.this.isFinishing()) {
-                    builder.create().show();
-                }
             };
         });
     }
 
     public void pauseButtonHandler(View w){
 
-        AlertDialog.Builder builder = this.getDialogBuilder("Вы действительно хотите перейти к процессу заморозки заказа?",
-                "", null);
-
-        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
+        showConfirm("Вы действительно хотите перейти к процессу заморозки заказа?", "",
+                "Подтвердить", "Отмена", new ConfirmDialogCallback() {
             @Override
-            public void onClick(DialogInterface dialog, int id) {
-                openPauseActivity(selectedOrderId);
+            public void confirm() {
+                openPauseActivity(selectedOrder.getId());
             }
-        }).setNegativeButton("Отмена", null);
 
-        if (!OrderActivity.this.isFinishing()) {
-            builder.create().show();
-        }
+            @Override
+            public void cancel() {
+
+            }
+        });
     }
 
     public void cancelButtonHandler(View w){
 
-        AlertDialog.Builder builder = this.getDialogBuilder("Вы действительно хотите рассформировать сборку данного заказа?",
-                "", null);
+        showConfirm("Вы действительно хотите рассформировать сборку данного заказа?", "",
+                "Подтвердить", "Отмена", new ConfirmDialogCallback() {
+                    @Override
+                    public void confirm() {
+                        manager.cancelOrder(new Manager.GetOrderCallback(){
+                            @Override
+                            public void success(Order order, String message){
+                                updateOrder(order, null);
+                            };
+                            @Override
+                            public void error(String message){
+                                showErrorMessage(message);
+                            };
+                        });
+                    }
 
-        builder.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                manager.cancelOrder(new Manager.GetOrderCallback(){
                     @Override
-                    public void success(Order order, String message){
-                        updateOrder(order, null);
-                    };
-                    @Override
-                    public void error(String message){
-                        OrderActivity.this.showErrorMessage(message);
-                    };
+                    public void cancel() {
+
+                    }
                 });
-            }
-        }).setNegativeButton("Отмена", null);
-
-        if (!OrderActivity.this.isFinishing()) {
-            builder.create().show();
-        }
 
     }
 
-    public void ordersButtonHandler(View w){
+    public void openOrdersActivity(View w){
         this.openOrdersActivity();
     }
 
-    public void scanningButtonHandler(View w){
-        this.openScanningActivity();
+    public void openProductActivity(View w){
+        this.openProductActivity();
     }
 
-    private void openScanningActivity(){
+    /**
+     * Открыть экран сборки товаров
+     */
+    private void openProductActivity(){
         this.destroyScanner();
         startActivityForResult(new Intent(this, ProductActivity.class), PRODUCT_ACTIVITY_CODE);
     }
 
+    /**
+     * Открыть экран списка заказов
+     */
     private void openOrdersActivity(){
         this.destroyScanner();
         startActivityForResult(new Intent(this, OrdersActivity.class), ORDERS_ACTIVITY_CODE);
     }
 
+    /**
+     * Открыть экран заморозки заказа
+     */
     private void openPauseActivity(String orderId){
         this.destroyScanner();
         Intent intent = new Intent(this, PauseActivity.class);
@@ -235,22 +227,26 @@ public class OrderActivity extends ScannerActivity {
                 if(intent != null){
                     orderId = intent.getStringExtra("order_id");
                 }
-                updateOrderById(orderId);
+                loadOrderById(orderId);
                 break;
 
             case PRODUCT_ACTIVITY_CODE:
-                updateOrderById("");
+                loadOrderById("");
                 break;
 
             case PAUSE_ACTIVITY_CODE:
-                updateOrderById("");
+                loadOrderById("");
                 break;
 
         }
     }
 
-    private void updateComponents(Order order, String message){
+    /**
+     * Обновить компоненты экрана
+     */
+    private void updateComponents(String message){
 
+        //Подставляем информацию о пользователе
         AccountManager.getInstance().getUser(new AccountManager.UserCallback() {
             @Override
             public void success(User user) {
@@ -261,8 +257,8 @@ public class OrderActivity extends ScannerActivity {
             }
         });
 
-        boolean hasOrder = order != null;
-        boolean isActive = false;
+        boolean hasOrder = selectedOrder != null;
+        boolean isActive = hasOrder && selectedOrder.getStatus().equals(Order.STATUS_ACTIVE);
 
         ((LinearLayout) findViewById(R.id.order_client_block)).setVisibility(hasOrder ? LinearLayout.VISIBLE : LinearLayout.GONE);
         ((LinearLayout) findViewById(R.id.order_client_no_orders_block)).setVisibility(!hasOrder ? LinearLayout.VISIBLE : LinearLayout.GONE);
@@ -273,13 +269,13 @@ public class OrderActivity extends ScannerActivity {
 
         if(hasOrder){
             //имя
-            ((TextView) findViewById(R.id.order_client_name)).setText(order.getName());
+            ((TextView) findViewById(R.id.order_client_name)).setText(selectedOrder.getName());
             //количество заказов
-            ((TextView) findViewById(R.id.order_client_orders_count)).setText(getString(R.string.order_client_orders_count, order.getOrderCount()));
+            ((TextView) findViewById(R.id.order_client_orders_count)).setText(getString(R.string.order_client_orders_count, selectedOrder.getOrderCount()));
 
             //Статус
             TextView statusView = (TextView) findViewById(R.id.order_client_status);
-            if(order.isVip()){
+            if(selectedOrder.isVip()){
                 statusView.setText("VIP");
                 statusView.setVisibility(TextView.VISIBLE);
             }
@@ -289,13 +285,11 @@ public class OrderActivity extends ScannerActivity {
             }
 
             //город
-            ((TextView) findViewById(R.id.order_client_shipping_zone)).setText(order.getShippingZone());
+            ((TextView) findViewById(R.id.order_client_shipping_zone)).setText(selectedOrder.getShippingZone());
             //id
-            ((TextView) findViewById(R.id.order_client_order_id)).setText("№" + order.getId());
+            ((TextView) findViewById(R.id.order_client_order_id)).setText("№" + selectedOrder.getId());
             //comment
-            ((TextView) findViewById(R.id.order_client_comment)).setText(order.getComment());
-
-            isActive = order.getStatus().equals(Order.STATUS_ACTIVE);
+            ((TextView) findViewById(R.id.order_client_comment)).setText(selectedOrder.getComment());
         }
 
         ((Button) findViewById(R.id.order_orders_button)).setVisibility(!hasOrder || !isActive ? Button.VISIBLE : Button.GONE);
@@ -309,7 +303,7 @@ public class OrderActivity extends ScannerActivity {
         int statusTitleColor = getResources().getColor(R.color.order_status_title_default);
 
         if(hasOrder){
-            switch(order.getStatus()){
+            switch(selectedOrder.getStatus()){
                 case Order.STATUS_UNSTARTED:
                     bgColor = R.color.order_status_bg_unstarted;
                     statusTitle = R.string.order_status_unstarted;
@@ -342,20 +336,20 @@ public class OrderActivity extends ScannerActivity {
     }
 
     public void handleScanner(String barcode) {
-        soundPool.play(soundID, 1, 1,1,0, 1f);
-        if(barcode.equals(OrderActivity.this.selectedOrderId)) {
-            Toast toast = Toast.makeText(getApplicationContext(),
-                    "Данный заказ уже выбран!", Toast.LENGTH_SHORT);
-            toast.show();
+        playSound();
+
+        if(selectedOrder != null && barcode.equals(selectedOrder.getId())) {
+            showNotification("Данный заказ уже выбран!");
         } else {
-            OrderActivity.this.updateOrderById(barcode);
+            loadOrderById(barcode);
         }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // По кнопке 82 открываем список заказов
         if(keyCode == 82) {
-            if(!selectOrderStatus.equals(Order.STATUS_ACTIVE)){
+            if(selectedOrder == null || !selectedOrder.getStatus().equals(Order.STATUS_ACTIVE)){
                 this.openOrdersActivity();
             }
             return true;
